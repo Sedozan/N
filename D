@@ -1,0 +1,1 @@
+python -c "import nbformat as n; nb=n.read('notebooks/classic_spl_component_making.ipynb',4); n.validate(nb); print(len(nb.cells))"
