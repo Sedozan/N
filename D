@@ -1,1 +1,3 @@
-python -c "import nbformat as n; nb=n.read('notebooks/classic_spl_component_making.ipynb',4); n.validate(nb); print(len(nb.cells))"
+
+
+Pulled Yinan's latest commits and set up the copy job so inputs land in my run's folder using pipeline parameters as dynamic content. Built the Fabric environment and merged my scratch notebooks into one component making notebook. It runs end to end and all four components write their tables. PR #1 is open for review.
