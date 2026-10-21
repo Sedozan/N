@@ -1,3 +1,8 @@
-& $HOME\venvs\build\Scripts\Activate.ps1
-python -m build --sdist
-tar -tzf dist\classic_specialty_ltv-10.0.0.tar.gz | Select-Object -First 3
+for label in ["B-3046295", "B-3038342"]:
+    base = f"Files/data/classic_spl_ltv/prod/feature/{label}/eltv_pipeline"
+    for sub in ["core/ltv_base", "core/legacy_ifs"]:
+        try:
+            names = [f.name for f in notebookutils.fs.ls(f"{base}/{sub}")]
+            print(label, sub, "delta" if "_delta_log" in names else "NOT delta")
+        except Exception:
+            print(label, sub, "missing")
