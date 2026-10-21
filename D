@@ -1,18 +1,8 @@
-Select-String -Path classic_spl_ltv\config\run_paths.py -Pattern "loss|balance|_lr|target"
-Select-String -Path classic_spl_ltv\jobs\expense\loss_ratio_expense.py -Pattern "def main|read_|save_|write|p\."
-Select-String -Path classic_spl_ltv\jobs\balance\driver_loss_balance.py -Pattern "def main|read_|save_|write|p\."
+src = "Files/data/classic_spl_ltv/prod/feature/B-3038342/retention/data"
+dst = "Files/data/classic_spl_ltv/prod/feature/B-3046295/retention/data"
+for f in notebookutils.fs.ls(src):
+    print(f.name)
 
 
-Read-only task. Do not edit any files.
-
-Context: this repo runs on Fabric. notebooks/classic_spl_component_making.ipynb builds the non-modeled components (expense, cat loads, cost of capital, ncor). My lead says we still need a "loss ratio folder" before scoring can run.
-
-Find out what that folder is:
-
-1. In classic_spl_ltv/config/run_paths.py, list every path property related to loss ratio, balance, or loss targets. Show what each resolves to under base.
-2. For classic_spl_ltv/jobs/expense/loss_ratio_expense.py and classic_spl_ltv/jobs/balance/driver_loss_balance.py: does each have a main()? What does it read, and what does it write (which p.* paths)?
-3. In classic_spl_ltv/jobs/score/1_policy.py, list every loss-ratio-related input it reads (p.* paths), and which job or source produces each one.
-4. For each of those inputs, say whether it is produced by the component making notebook, landed by a copy job, or not produced anywhere yet.
-
-Cite file and line number for every claim. If something is unclear, say so instead of guessing.
-
+notebookutils.fs.cp(src, dst, recurse=True)
+print(sorted(f.name for f in notebookutils.fs.ls(dst)) == sorted(f.name for f in notebookutils.fs.ls(src)))
