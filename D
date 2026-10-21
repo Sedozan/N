@@ -1,3 +1,2 @@
-for sub in ["core/ltv_base", "core/legacy_ifs"]:
-    names = [f.name for f in notebookutils.fs.ls(f"Files/data/classic_spl_ltv/prod/feature/B-3046295/eltv_pipeline/{sub}")]
-    print(sub, "delta" if "_delta_log" in names else "NOT delta")
+Scoring runs end to end on my label (B-3046295): unbalanced pass, balance, balanced pass, validate and deliver all passed. Only the validation workbook failed, with No module named pytest, which matches your note in the notebook. Do you want pytest added to the environment, or will you handle validation separately?
+Two things I had to do along the way: my eltv_pipeline inputs were still parquet, so I ran your convert_to_delta notebook on my label (I set git_checkout back afterwards). In your scoring notebook I commented out the two copy cells at the top and [set it back to your label and environment / left it on mine].
