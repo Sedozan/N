@@ -1,2 +1,46 @@
-Scoring runs end to end on my label (B-3046295): unbalanced pass, balance, balanced pass, validate and deliver all passed. Only the validation workbook failed, with No module named pytest, which matches your note in the notebook. Do you want pytest added to the environment, or will you handle validation separately?
-Two things I had to do along the way: my eltv_pipeline inputs were still parquet, so I ran your convert_to_delta notebook on my label (I set git_checkout back afterwards). In your scoring notebook I commented out the two copy cells at the top and [set it back to your label and environment / left it on mine].
+import numpy as np
+from pyspark.sql import functions as F
+
+SEG = ["pls_pt_state_cd", "total_policy_count"]  # adjust to raw column names present
+
+base = ltv_bench.filter(F.col("release_day") == 28)
+
+# share of condo within each segment = how much condo "taught" that region of feature space
+condo_share = base.groupBy(*SEG).agg(
+    F.avg((F.col("drv_line") == 78).cast("double")).alias("condo_share"),
+    F.count("*").alias("seg_n"),
+)
+
+# m = matched join from before, with SEG columns added in prep()
+delta = (
+    m.filter(F.col("drv_line") != 78)
+    .withColumn("d_ple_pct", 100 * (F.col("ple_n") / F.col("ple_b") - 1))
+    .join(condo_share, SEG)
+)
+
+# 1) condo exposure per line: should rank 072/032/090 high, 016/088 low
+delta.groupBy("drv_line").agg(
+    F.round(F.avg("condo_share"), 4).alias("avg_condo_exposure"),
+    F.round(F.avg("d_ple_pct"), 2).alias("avg_d_ple_pct"),
+).orderBy("drv_line").show()
+
+# 2) within line: do condo-heavy segments see bigger PLE drops?
+seg = (delta.groupBy("drv_line", *SEG)
+       .agg(F.avg("d_ple_pct").alias("d_ple_pct"),
+            F.first("condo_share").alias("condo_share"),
+            F.count("*").alias("n"))
+       .filter(F.col("n") >= 500)
+       .toPandas())
+for line, g in seg.groupby("drv_line"):
+    print(line, round(np.corrcoef(g["condo_share"], g["d_ple_pct"])[0, 1], 3))
+
+
+
+Each chart breaks the LTV change from v9.4.1 to v10.0.0 into its components. Most of the movement comes from lower retention, which reduces lifetime premium and lifetime loss together.
+
+Shorter header options:
+
+	•	LTV Change by Line (v10.0.0 vs v9.4.1)
+	•	Waterfall Comparison: v10.0.0 vs v9.4.1
+
+Removing Condo from training lowered retention on Landlord, Mobile Home and Boat, which cut LTV by 3 to 5% on those lines. The drop comes almost entirely from fewer expected renewal years: lifetime premium and lifetime loss both shrink, and the other components move with them. Auto Special is flat overall, and Umbrella goes up slightly, with only a small LTV impact because most of its added premium is offset by added loss. The pattern is the same across agent and call center, so this is a line-level effect of the retrain, not a channel mix shift.
