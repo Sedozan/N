@@ -1,14 +1,1 @@
-PLE went down for Mobile Home, Landlord and Boat. It stayed about the same for Auto Special and Umbrella.
-Why some lines changed more than others
-	1.	Some lines look more like Condo. The model is trained on all lines together. Condo has the highest retention, and it helped the model predict higher retention for similar policies in other lines. Once we removed Condo, those policies got lower retention. Landlord and Mobile Home are property lines, so they are the closest to Condo. Auto Special and Umbrella are different, so they barely moved.
-	2.	The average retention in the training data went down. Condo is about 10% of the policies. Without it, the overall retention the model learns from is lower, which pushes predictions down a bit.
-	3.	Other changes in the retrain. Any retrain can shift predictions. We are confirming with Yinan whether anything else changed in v10.0.0 besides removing Condo.
-	4.	How the line feature is coded. Line is the second most important feature. If its coding changed when Condo was removed, the model may group lines differently. We will check this.
-
-Line	v9.4.1	v10.0.0	PLE Δ	Premium Δ	LTV Δ
-016 Auto Special	3.538	3.538	0.0%	−0.1%	−0.4%
-032 Mobile Home	5.162	4.878	−5.5%	−4.2%	−4.4%
-072 Landlord	5.460	5.194	−4.9%	−4.6%	−4.2%
-078 Condo	7.396	not scored			
-088 Umbrella	5.203	5.221	+0.3%	+1.2%	+1.5%
-090 Boat	5.671	5.436	−4.1%	−2.5%	−3.4%
+grep -n "def get_pw\|def get_robie_acc" -A 15 /home/ubuntu/.local/lib/python3.9/site-packages/ltv_helpers/non_spark_helpers.py
