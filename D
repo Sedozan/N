@@ -1,11 +1,1 @@
-grep -n "def get_pw\|def get_robie_acc" -A 15 /home/ubuntu/.local/lib/python3.9/site-packages/ltv_helpers/non_spark_helpers.py
-
-# see which username prod uses
-sed -n 153,170p /home/ubuntu/.local/lib/python3.9/site-packages/ltv_helpers/non_spark_helpers.py
-
-# confirm the vars exist, without showing values
-python -c "import os; [print(k, k in os.environ, len(os.environ.get(k,''))) for k in ['SYS_ID_PASSWORD','AD_PASSWORD','DOMINO_STARTING_USERNAME']]"
-
-
-# any recent changes to the auth code?
-cd /mnt/imported/code/ltv-helpers && git log --since=2026-09-01 --oneline -- ltv_helpers/non_spark_helpers.py
+python -c "import os; print('same as AD:', os.environ['SYS_ID_PASSWORD']==os.environ['AD_PASSWORD']); print('SYS_ID:', os.environ.get('SYS_ID'))"
