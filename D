@@ -1,1 +1,2 @@
-AHCCCS and federal billing rules are published across many manuals, tables and edit files, and the rules for a single claim often sit in several of them. The Policy Intelligence Engine (PIE) uses AI to read the policy manuals and propose rules; our team reviews each one before it enters a single knowledge base, where every rule keeps its exact policy wording, source page and effective dates. We'll show how AI and human review work together, the first uses the knowledge base supports (checking paid claims against policy and finding every rule that applies to a service), and why approved checks run without AI so every result traces back to policy.
+grep -n "read_parquet_s3\|from_s3_to_tempfile\|read_excel\|p\.processed_\|p\.raw_" classic_spl_ltv/jobs/score/1_policy.py
+
