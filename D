@@ -1,2 +1,1 @@
-grep -n "read_parquet_s3\|from_s3_to_tempfile\|read_excel\|p\.processed_\|p\.raw_" classic_spl_ltv/jobs/score/1_policy.py
-
+grep -rn "read_parquet_s3\|from_s3_to_tempfile" classic_spl_ltv/jobs/score/ classic_spl_ltv/ltv_calc/ 2>/dev/null
