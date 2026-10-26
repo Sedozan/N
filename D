@@ -1,6 +1,2 @@
-Line	ltv_base	score_validate
-016	677,057	677,057
-032	111,775	111,775
-072	798,557	798,557
-088	379,338	379,338
-090	189,252	189,252
+Yes, f_classic_specialty_clv already has the fix: its validate/main.py filters to 16, 32, 72, 88 and 90. Validation passed: policy counts match exactly on all 5 lines and all 22 expense ratio tests passed.
+Waterfall: the LTV drop is modest, about 3% across the book. Landlord drops the most (1,879 to 1,800, −4.2%), then Mobile Home (−3.5%) and Boat (−1.5%). Umbrella is up slightly (+1.3%) and Auto Special is flat. That's the pattern we expect from removing condo. Mobile Home and Boat drop a bit less than in the earlier plots because rebalancing adds some back, so let's go over that part together.
