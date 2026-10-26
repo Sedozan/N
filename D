@@ -1,1 +1,2 @@
-grep -n "assert\|raise\|drv_line\|count" classic_spl_ltv/jobs/validate/main.py
+sed -n 88,118p classic_spl_ltv/jobs/validate/main.py
+
