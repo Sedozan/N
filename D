@@ -1,5 +1,16 @@
-sed -n 25,40p classic_spl_ltv/jobs/validate/main.py
-sed -n 100,120p classic_spl_ltv/jobs/validate/validate_data.py
+Week of 10/19 to 10/23
 
+Completed
 
-grep -rn '"78"\|078' classic_spl_ltv/ --include=*.py --include=*.toml
+	•	Consolidated the classic component-making notebook (setup check + outputs table), tested it end to end on Fabric, and merged PR #1 into Yinan's branch.
+	•	Ran the full classic scoring pipeline end to end on Fabric as a test (end_date 20260801): unbalanced pass, loss-ratio balance, balanced pass, validation, delivery.
+	•	v10.0.0 prod run (release/NB_Classic_SPL_v10.0.0, end_date 20261017): retention scoring, score_unbalanced, process_lr_balance, score_balanced and score_deliver all ran. Cleared four blockers to get there: Scality login (invalid sys-ID creds), missing retention files (copied other_short_ret_lgb.mdl and other_short_ret_enc.pkl from feature/B-2993404; scoring was 404ing), missing finance inputs (ran dodo_finance.py for cat loads, expense, risk, reinsurance), and GitHub credential failures on some child jobs (reruns went through).
+
+Ongoing
+
+	•	v10.0.0 validation. check_validation fails because validate/main.py line 31 still filters "78" in the ltv_base line set. Condo is in the base but correctly out of the v10 scores, so the line-count loop crashes. The scores look right; it is the validator that is stale. The other five lines match exactly. Fix is removing "78".
+	•	Waterfall comparison against the feature-branch run, once validation passes.
+
+Not started
+
+	•	None
