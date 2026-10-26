@@ -1,54 +1,6 @@
-No need to apologize. Here's a plainer version:
-
----
-
-**v10.0.0 Prod Run on Domino**
-
-This is the v10.0.0 run we're using as the baseline. Details on the inputs are below.
-
-**Run**
-
-| | |
-|---|---|
-| Repo / branch | classic-specialty-ltv / release/NB_Classic_SPL_v10.0.0 |
-| Commit | [SHA] |
-| End date | 20261017 |
-| Run type | prod |
-| Domino tag | [tag] |
-| Domino jobs | [job numbers] |
-| Output | tmx-smsiweb/classic-specialty-ltv/prod/release/NB_Classic_SPL_v10.0.0/ |
-
-**Retention model and encoder**
-
-The model was retrained without condo on feature/B-2993404. I copied the model and encoder from there into the release folder before scoring.
-
-| File | Copied from | Copied to | Date |
-|---|---|---|---|
-| other_short_ret_lgb.mdl | [prod or dev]/feature/B-2993404/retention/models/ | retention/models/ | [date] |
-| other_short_ret_enc.pkl | [prod or dev]/feature/B-2993404/retention/encoders/ | retention/encoders/ | [date] |
-
-Condo (078) gets dropped at retention scoring, so v10 scores 016, 032, 072, 088 and 090.
-
-**Non-modeled components**
-
-All of these were generated in this run, not copied from another branch.
-
-| Component | Path (in release folder) | Created by | Last modified |
-|---|---|---|---|
-| Expense | expense/processed_expense_df/ | dodo_finance.py | [ ] |
-| Cat loads | finance/processed_cat_loads.parquet | dodo_finance.py | [ ] |
-| Reinsurance | risk/ncor_to_aap.parquet | dodo_finance.py | [ ] |
-| Cost of capital | [path] | dodo_finance.py | [ ] |
-| Loss ratio balance | [path] | process_lr_balance | [ ] |
-
-Finance file: [name]
-ltv_base and legacy_ifs come from eltv_pipeline/prod/main/core/
-
-**Validation**
-
-1. check_validation: line counts match between ltv_base and score_validate, and all 22 expense ratio tests passed. Excel: [path]
-2. Waterfall vs the feature branch run: [result, link]
-
----
-
-For the "last modified" column, take the date from the Scality browser for each path. For the job numbers, only list the runs that succeeded.
+Line	ltv_base	score_validate
+016	677,057	677,057
+032	111,775	111,775
+072	798,557	798,557
+088	379,338	379,338
+090	189,252	189,252
