@@ -1,20 +1,54 @@
-Hi Yinan,
-Sorry I missed your Friday email and didn't flag that I wouldn't make the EOD deadline. I'll send updates more often and let you know early when I'm blocked.
-Here's what caused the reruns:
-	1.	Scality login: prod jobs failed with invalid credentials for the sys ID. Resolved once the credentials were updated.
-	2.	Retention model and encoder not in the release path: scoring returned 404 on other_short_ret_lgb.mdl until I copied the model and encoder from feature/B-2993404. One rerun was because my first copy didn't land at the exact path.
-	3.	Finance inputs not in the release path: 1_policy failed on processed_cat_loads. I hadn't run dodo_finance.py for the new release path; the score chain doesn't trigger it.
-	4.	Domino Git access: a few child jobs couldn't start ("Cannot access Git repository"). Reruns went through.
-	5.	Typo: I ran score_delivered instead of score_deliver once.
-	6.	check_validation: validate/main.py still has "78" in the ltv_base line filter, so the line count check fails since condo isn't in v10 scores. Fix is removing "78". OK to push that?
-Also, the trackers don't persist when a job fails, so featurize and clean reran each time, which added time to every retry.
-For next time I'll run a checklist before the first job: copy the model and encoder, run dodo_finance, confirm every input path in Scality, take task names from doit list, and test single steps in the workspace before submitting the full chain.
-Next steps:
-	•	Waterfall: I'll let you know when it's ready so we can review it together.
-	•	I'll start a loop page under the v10 release note documenting the validation process (retention model/encoder source, non-modeled components) and tag the v10 run in Domino.
-	•	Once the validation fix PR is up, I'll make sure the same change is in f_classic_specialty_clv.
-Thanks,
-Sedo
+No need to apologize. Here's a plainer version:
 
+---
 
-Domino Git access: child jobs couldn't start a few times ("Cannot access Git repository", invalid Git credentials). It happened Friday afternoon and again this morning. Reruns went through without any change on my side.
+**v10.0.0 Prod Run on Domino**
+
+This is the v10.0.0 run we're using as the baseline. Details on the inputs are below.
+
+**Run**
+
+| | |
+|---|---|
+| Repo / branch | classic-specialty-ltv / release/NB_Classic_SPL_v10.0.0 |
+| Commit | [SHA] |
+| End date | 20261017 |
+| Run type | prod |
+| Domino tag | [tag] |
+| Domino jobs | [job numbers] |
+| Output | tmx-smsiweb/classic-specialty-ltv/prod/release/NB_Classic_SPL_v10.0.0/ |
+
+**Retention model and encoder**
+
+The model was retrained without condo on feature/B-2993404. I copied the model and encoder from there into the release folder before scoring.
+
+| File | Copied from | Copied to | Date |
+|---|---|---|---|
+| other_short_ret_lgb.mdl | [prod or dev]/feature/B-2993404/retention/models/ | retention/models/ | [date] |
+| other_short_ret_enc.pkl | [prod or dev]/feature/B-2993404/retention/encoders/ | retention/encoders/ | [date] |
+
+Condo (078) gets dropped at retention scoring, so v10 scores 016, 032, 072, 088 and 090.
+
+**Non-modeled components**
+
+All of these were generated in this run, not copied from another branch.
+
+| Component | Path (in release folder) | Created by | Last modified |
+|---|---|---|---|
+| Expense | expense/processed_expense_df/ | dodo_finance.py | [ ] |
+| Cat loads | finance/processed_cat_loads.parquet | dodo_finance.py | [ ] |
+| Reinsurance | risk/ncor_to_aap.parquet | dodo_finance.py | [ ] |
+| Cost of capital | [path] | dodo_finance.py | [ ] |
+| Loss ratio balance | [path] | process_lr_balance | [ ] |
+
+Finance file: [name]
+ltv_base and legacy_ifs come from eltv_pipeline/prod/main/core/
+
+**Validation**
+
+1. check_validation: line counts match between ltv_base and score_validate, and all 22 expense ratio tests passed. Excel: [path]
+2. Waterfall vs the feature branch run: [result, link]
+
+---
+
+For the "last modified" column, take the date from the Scality browser for each path. For the job numbers, only list the runs that succeeded.
