@@ -1,6 +1,2 @@
-cd /mnt/code
-python classic_spl_ltv/jobs/validate/main.py \
-  --dyna_run_type=prod \
-  --dyna_git_branch=release/NB_Classic_SPL_v10.0.0 \
-  --dyna_git_checkout=release/NB_Classic_SPL_v10.0.0 \
-  --end_date=20261017
+sed -n 25,40p classic_spl_ltv/jobs/validate/main.py
+sed -n 100,120p classic_spl_ltv/jobs/validate/validate_data.py
