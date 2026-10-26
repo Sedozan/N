@@ -1,8 +1,1 @@
-df = claim_features
-print(df.duplicated().sum(), df.duplicated(subset=[claim_key]).sum())
-
-dup = df[df.duplicated(claim_key, keep=False)]
-varying = dup.groupby(claim_key).nunique().gt(1).sum()
-print(varying[varying > 0].sort_values(ascending=False))
-dup.sort_values(claim_key).head(8)
-
+grep -n "assert\|raise\|drv_line\|count" classic_spl_ltv/jobs/validate/main.py
