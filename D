@@ -1,2 +1,7 @@
-sed -n 88,118p classic_spl_ltv/jobs/validate/main.py
+cd /mnt/code
+export ENV_FOR_DYNACONF=prod
+export DYNACONF_GIT_BRANCH=release/NB_Classic_SPL_v10.0.0
+export DYNACONF_GIT_CHECKOUT=release/NB_Classic_SPL_v10.0.0
+python -m pytest classic_spl_ltv/jobs/validate/test_expense_ratios.py -x -q
+
 
