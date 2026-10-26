@@ -1,7 +1,6 @@
 cd /mnt/code
-export ENV_FOR_DYNACONF=prod
-export DYNACONF_GIT_BRANCH=release/NB_Classic_SPL_v10.0.0
-export DYNACONF_GIT_CHECKOUT=release/NB_Classic_SPL_v10.0.0
-python -m pytest classic_spl_ltv/jobs/validate/test_expense_ratios.py -x -q
-
-
+python classic_spl_ltv/jobs/validate/main.py \
+  --dyna_run_type=prod \
+  --dyna_git_branch=release/NB_Classic_SPL_v10.0.0 \
+  --dyna_git_checkout=release/NB_Classic_SPL_v10.0.0 \
+  --end_date=20261017
