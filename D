@@ -1,24 +1,15 @@
-for gc in ["NB_Classic_SPL_v10.0.0", "release/NB_Classic_SPL_v10.0.0"]:
-    pp = run_paths.make_paths(run_type, gc, model_version, end_date=end_date)
-    print(gc, "->", pp.public_results, notebookutils.fs.exists(pp.public_results))
+import numpy as np
+import pandas as pd
 
+import ltv_helpers.fabric_pipeline_helpers as fh
+from classic_spl_ltv.config import run_paths
 
-import sys
-import notebookutils
+p = run_paths.make_paths(run_type, git_checkout, model_version, end_date=end_date)
 
-pkg_version = "10.0.0"
-helpers_version = "2.0.0"
+FABRIC_PUBLIC_RESULTS = f"{p.base}/score/public_results"
 
-SPL_ROOT = f"{notebookutils.nbResPath}/env/classic_specialty_ltv-{pkg_version}"
-if SPL_ROOT not in sys.path:
-    sys.path.insert(0, SPL_ROOT)
-
-HELPER_ROOT = f"{notebookutils.nbResPath}/env/ltv_helpers-{helpers_version}"
-if HELPER_ROOT not in sys.path:
-    sys.path.insert(0, HELPER_ROOT)
-
-
-
-
-from importlib.metadata import version
-print(version("classic-specialty-ltv"), version("ltv-helpers"))
+for name, path in [("fabric run", FABRIC_PUBLIC_RESULTS),
+                   ("fabric published", p.public_results),
+                   ("domino", DOMINO_PUBLIC_RESULTS)]:
+    print(f"{name:17}: {path} | exists: {notebookutils.fs.exists(path)} "
+          f"| delta: {notebookutils.fs.exists(path + '/_delta_log')}")
