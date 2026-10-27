@@ -1,24 +1,7 @@
-v10 = f"{base}/NB_Classic_SPL_v10.0.0/risk"
-v941 = f"{base}/NB_Classic_SPL_v9.4.1/risk"
+Compared prem_float_2024 between v10 and 9.4.1. Same 10 rows and same values. The other risk files are the same too. So the risk steps look correct; only the file sizes differ.
 
-def compare(name):
-    new = ph.read_parquet_s3(spark, f"{v10}/{name}/").toPandas()
-    old = ph.read_parquet_s3(spark, f"{v941}/{name}/").toPandas()
-    keys = [c for c in new.columns if new[c].dtype == object]
-    nums = [c for c in new.columns if c not in keys and c in old.columns]
-    m = old.merge(new, on=keys, how="outer", suffixes=("_941", "_v10"), indicator=True)
-    print(f"\n{name}: rows {len(old)} -> {len(new)}, column diffs: {set(old.columns) ^ set(new.columns) or 'none'}")
-    print(m["_merge"].value_counts().to_dict())
-    for c in nums:
-        d = (m[f"{c}_v10"] - m[f"{c}_941"]).abs()
-        if (d > 1e-9).sum():
-            print(f"  {c}: {(d > 1e-9).sum()} rows differ, max abs diff {d.max()}")
-    return m
 
-results = {}
-for name in ["prem_float_2024", "coc_home_state_2024", "coc_home_zip3_2024", "coc_home_zip5_2024", "coc_non_home_2024"]:
-    results[name] = compare(name)
-
+Compared prem_float_2024 and the four coc_*_2024 risk files between v10 and 9.4.1. Same rows and same values in all five, so the risk steps are correct. The size difference is just from how the files were written.
 
 
 Compared prem_float_2024 and the four coc_*_2024 files between v10 and 9.4.1. Same rows and values in all five; ncor_to_aap is the same size too. The size difference is just how the files were written, so the risk steps look correct.
