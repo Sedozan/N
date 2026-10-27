@@ -1,15 +1,17 @@
-v10.0.0 Model and Component Sources
+SRC = "tmx-smsiweb/classic-specialty-ltv/prod/feature/B-2993404/retention"  # confirm prod vs dev
+REL = "tmx-smsiweb/classic-specialty-ltv/prod/release/NB_Classic_SPL_v10.0.0/retention"
 
-Model and component sources
+files = {
+    "model":   ("models/other_short_ret_lgb.mdl",   "models/other_short_ret_lgb.mdl"),
+    "encoder": ("encoders/other_short_ret_enc.pkl", "encoders/other_short_ret_enc.pkl"),
+}
 
-Item	Source	Date
-Retention model and encoder	Retrained on feature/B-2993404, copied to the release folder	Retrained Sep 15, copied Oct 23
-Expense, cat loads, NCOR to AAP	Created by dodo_finance.py in the v10 run	Oct 25
-Loss ratio balance	Created by process_lr_balance in the v10 run	Oct 25
-Finance expense file	State Hybrid Expense Ratio 2027 Ch Splits	Uploaded Aug 16
-Hurricane / wildfire cost of risk	eltv-policy risk folder (2025 update)	June 2025
-Cost of capital	Constants in jobs/risk/make_constants.py	
-
-ltv_base and legacy_ifs come from the upstream eltv pipeline and were refreshed after this run, so the exact v10 inputs aren't kept.
-
-Notebook with paths and checks: 
+rows = []
+for name, (src, rel) in files.items():
+    s_time, s_size = stat(f"{SRC}/{src}")
+    r_time, r_size = stat(f"{REL}/{rel}")
+    rows.append({"item": name, "source": f"{SRC}/{src}", "source_modified": s_time,
+                 "release_path": f"{REL}/{rel}", "release_modified": r_time,
+                 "same_size": s_size == r_size and s_size is not None})
+models_df = pd.DataFrame(rows)
+models_df
