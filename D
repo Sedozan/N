@@ -1,15 +1,57 @@
+import notebookutils
 import numpy as np
 import pandas as pd
 
 import ltv_helpers.fabric_pipeline_helpers as fh
 from classic_spl_ltv.config import run_paths
 
+# ---------------- config ----------------
+run_type = "score"
+git_checkout = "NB_Classic_SPL_v10.0.0"
+pkg_version = "10.0.0"
+model_version = pkg_version
+end_date = None
+
+DOMINO_PUBLIC_RESULTS = "Files/domino/prod/release/NB_Classic_SPL_v10.0.0/score/public_results"
+
+JOIN_KEYS = ["adw_pol_id", "release_date"]
+ATOL = 0.01  # dollar tolerance for a match
+
+# ---------------- paths ----------------
 p = run_paths.make_paths(run_type, git_checkout, model_version, end_date=end_date)
+FABRIC_PUBLIC_RESULTS = p.public_results
 
-FABRIC_PUBLIC_RESULTS = f"{p.base}/score/public_results"
+for name, path in [("fabric", FABRIC_PUBLIC_RESULTS), ("domino", DOMINO_PUBLIC_RESULTS)]:
+    assert notebookutils.fs.exists(path), f"{name} path not found: {path}"
+    print(f"{name}: {path}")
 
-for name, path in [("fabric run", FABRIC_PUBLIC_RESULTS),
-                   ("fabric published", p.public_results),
-                   ("domino", DOMINO_PUBLIC_RESULTS)]:
-    print(f"{name:17}: {path} | exists: {notebookutils.fs.exists(path)} "
-          f"| delta: {notebookutils.fs.exists(path + '/_delta_log')}")
+# ---------------- load ----------------
+fabric_scores = fh.read_delta_table(spark, FABRIC_PUBLIC_RESULTS).toPandas()
+domino_scores = spark.read.format("parquet").load(DOMINO_PUBLIC_RESULTS).toPandas()
+
+print(f"\nfabric rows: {len(fabric_scores):,}")
+print(f"domino rows: {len(domino_scores):,}")
+
+# ---------------- key integrity ----------------
+def key_report(df, name):
+    missing = [k for k in JOIN_KEYS if k not in df.columns]
+    if missing:
+        raise KeyError(f"{name} is missing join key column(s): {missing}")
+    print(
+        f"{name:7s} rows={len(df):>10,}"
+        f"  unique_keys={len(df[JOIN_KEYS].drop_duplicates()):>10,}"
+        f"  dup_rows={int(df.duplicated(subset=JOIN_KEYS).sum()):>8,}"
+        f"  null_keys={int(df[JOIN_KEYS].isna().any(axis=1).sum()):>8,}"
+    )
+
+print()
+key_report(fabric_scores, "fabric")
+key_report(domino_scores, "domino")
+
+# ---------------- coverage by release date (before joining) ----------------
+fk = fabric_scores[JOIN_KEYS].assign(fab=1)
+dk = domino_scores[JOIN_KEYS].assign(dom=1)
+k = fk.merge(dk, on=JOIN_KEYS, how="outer")
+k["side"] = np.select([k["fab"].isna(), k["dom"].isna()], ["domino_only", "fabric_only"], "both")
+print()
+print(k.groupby(["release_date", "side"]).size().unstack(fill_value=0).tail(15))
