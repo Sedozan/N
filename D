@@ -1,5 +1,15 @@
-grep -rn "processed_commission" classic_spl_ltv/ --include=*.py
+v10.0.0 Model and Component Sources
 
-# does an older release have them?
-for b in ["release/NB_Classic_SPL_v9.4.1", "release/NB_Classic_SPL_v9.4.0"]:
-    print(b, stat(p.processed_commission_agt.replace("release/NB_Classic_SPL_v10.0.0", b)))
+Model and component sources
+
+Item	Source	Date
+Retention model and encoder	Retrained on feature/B-2993404, copied to the release folder	Retrained Sep 15, copied Oct 23
+Expense, cat loads, NCOR to AAP	Created by dodo_finance.py in the v10 run	Oct 25
+Loss ratio balance	Created by process_lr_balance in the v10 run	Oct 25
+Finance expense file	State Hybrid Expense Ratio 2027 Ch Splits	Uploaded Aug 16
+Hurricane / wildfire cost of risk	eltv-policy risk folder (2025 update)	June 2025
+Cost of capital	Constants in jobs/risk/make_constants.py	
+
+ltv_base and legacy_ifs come from the upstream eltv pipeline and were refreshed after this run, so the exact v10 inputs aren't kept.
+
+Notebook with paths and checks: 
