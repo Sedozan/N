@@ -1,7 +1,24 @@
-Compared prem_float_2024 between v10 and 9.4.1. Same 10 rows and same values. The other risk files are the same too. So the risk steps look correct; only the file sizes differ.
+for gc in ["NB_Classic_SPL_v10.0.0", "release/NB_Classic_SPL_v10.0.0"]:
+    pp = run_paths.make_paths(run_type, gc, model_version, end_date=end_date)
+    print(gc, "->", pp.public_results, notebookutils.fs.exists(pp.public_results))
 
 
-Compared prem_float_2024 and the four coc_*_2024 risk files between v10 and 9.4.1. Same rows and same values in all five, so the risk steps are correct. The size difference is just from how the files were written.
+import sys
+import notebookutils
+
+pkg_version = "10.0.0"
+helpers_version = "2.0.0"
+
+SPL_ROOT = f"{notebookutils.nbResPath}/env/classic_specialty_ltv-{pkg_version}"
+if SPL_ROOT not in sys.path:
+    sys.path.insert(0, SPL_ROOT)
+
+HELPER_ROOT = f"{notebookutils.nbResPath}/env/ltv_helpers-{helpers_version}"
+if HELPER_ROOT not in sys.path:
+    sys.path.insert(0, HELPER_ROOT)
 
 
-Compared prem_float_2024 and the four coc_*_2024 files between v10 and 9.4.1. Same rows and values in all five; ncor_to_aap is the same size too. The size difference is just how the files were written, so the risk steps look correct.
+
+
+from importlib.metadata import version
+print(version("classic-specialty-ltv"), version("ltv-helpers"))
