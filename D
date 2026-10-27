@@ -1,16 +1,13 @@
-dom_only = domino_scores.merge(fabric_scores[JOIN_KEYS], on=JOIN_KEYS, how="left", indicator=True)
-dom_only = dom_only[dom_only["_merge"] == "left_only"].drop(columns="_merge")
+Hi Yinan, I got the domino validate notebook running against the v10 Fabric run. I only changed a few things in the config: git_checkout to NB_Classic_SPL_v10.0.0, added pkg_version, and the Domino path to score/public_results since that's where the import pipeline puts the files.
+Results look really good. 1,070,161 policies matched and everything lines up except 20 boat policies. Landlord, manf home, PUP and spec auto match 100%, and PLE, loss ratios and balance factors match exactly everywhere. On those 20 boat policies Fabric's LTV is higher than Domino's, with the gap ranging from small to large. PLE matches on them, so it's something in the dollar inputs. I'll dig into those tomorrow.
+On counts: Fabric has about 5k extra rows for Oct 18 to 24 since its run goes past my Domino end date (Oct 17), plus 53 Domino only and 12 Fabric only within the same dates.
+The balance section doesn't run because the import pipeline only copies public_results. Want me to add a copy step for it?
 
-fab_only = fabric_scores.merge(domino_scores[JOIN_KEYS], on=JOIN_KEYS, how="left", indicator=True)
-fab_only = fab_only[(fab_only["_merge"] == "left_only") &
-                    (pd.to_datetime(fab_only["release_date"]) <= CUTOFF)].drop(columns="_merge")
 
-print(f"domino only: {len(dom_only)}, fabric only (shared dates): {len(fab_only)}")
-print("\ndomino only by line:\n", dom_only.groupby("line").size())
-print("\nfabric only by line:\n", fab_only.groupby("line").size())
 
-# same policy, different release date?
-both_ids = set(dom_only["adw_pol_id"]) & set(fab_only["adw_pol_id"])
-print(f"\npolicy IDs in both lists: {len(both_ids)}")
-
-dom_only[["adw_pol_id", "policy_nbr", "line", "state", "release_date", "frst_eff_dt"]].head(20)
+bad = worst[worst["abs_diff"] > ATOL].index
+cols = ["adw_pol_id", "release_date",
+        "written_premium_fab", "written_premium_dom",
+        "term_length_fab", "term_length_dom",
+        "state_fab", "state_dom", "zip_fab", "zip_dom"]
+joined.loc[bad, [c for c in cols if c in joined.columns]]
