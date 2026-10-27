@@ -1,2 +1,73 @@
-Yes, f_classic_specialty_clv already has the fix: its validate/main.py filters to 16, 32, 72, 88 and 90. Validation passed: policy counts match exactly on all 5 lines and all 22 expense ratio tests passed.
-Waterfall: the LTV drop is modest, about 3% across the book. Landlord drops the most (1,879 to 1,800, −4.2%), then Mobile Home (−3.5%) and Boat (−1.5%). Umbrella is up slightly (+1.3%) and Auto Special is flat. That's the pattern we expect from removing condo. Mobile Home and Boat drop a bit less than in the earlier plots because rebalancing adds some back, so let's go over that part together.
+import os
+os.environ["ENV_FOR_DYNACONF"] = "prod"
+os.environ["DYNACONF_GIT_BRANCH"] = "release/NB_Classic_SPL_v10.0.0"
+os.environ["DYNACONF_GIT_CHECKOUT"] = "release/NB_Classic_SPL_v10.0.0"
+
+import pandas as pd
+from datetime import datetime
+from classic_spl_ltv.config import paths as p
+from ltv_helpers.spark import create_spark
+
+spark = create_spark(app_name="v10_inputs_sources", buckets=p.buckets)
+
+def stat(path):
+    """Last modified time and size for a file or a parquet folder."""
+    path = path if path.startswith("s3a://") else f"s3a://{path}"
+    jp = spark._jvm.org.apache.hadoop.fs.Path(path)
+    fs = jp.getFileSystem(spark._jsc.hadoopConfiguration())
+    if not fs.exists(jp):
+        return None, None
+    st = fs.getFileStatus(jp)
+    files = [st] if st.isFile() else [f for f in fs.listStatus(jp) if f.isFile()]
+    mtime = max(f.getModificationTime() for f in files)
+    size = sum(f.getLen() for f in files)
+    return datetime.fromtimestamp(mtime / 1000), size
+
+
+
+SRC = "tmx-smsiweb/classic-specialty-ltv/prod/feature/B-2993404/retention"  # confirm prod vs dev
+REL = "tmx-smsiweb/classic-specialty-ltv/prod/release/NB_Classic_SPL_v10.0.0/retention"
+
+files = {
+    "model":   ("models/other_short_ret_lgb.mdl",   "models/other_short_ret_lgb.mdl"),
+    "encoder": ("encoders/other_short_ret_enc.pkl", "encoders/other_short_ret_enc.pkl"),
+}
+
+rows = []
+for name, (src, rel) in files.items():
+    s_time, s_size = stat(f"{SRC}/{src}")
+    r_time, r_size = stat(f"{REL}/{rel}")
+    rows.append({"item": name, "source": f"{SRC}/{src}", "source_modified": s_time,
+                 "release_path": f"{REL}/{rel}", "release_modified": r_time,
+                 "same_size": s_size == r_size and s_size is not None})
+models_df = pd.DataFrame(rows)
+models_df
+
+
+components = {
+    "expense":         (p.processed_expense_df, "dodo_finance.py: expense_preprocess"),
+    "cat loads":       (p.processed_cat_loads,  "dodo_finance.py: cat_load_preprocess"),
+    "reinsurance":     (p.ncor_to_aap,          "dodo_finance.py: reinsurance"),
+    "cost of capital": (p.cost_of_capital,      "dodo_finance.py: risk"),
+    "loss balance":    (p.balance,              "dodo_balance.py: process_lr_balance"),
+}
+
+rows = []
+for name, (path, made_by) in components.items():
+    t, _ = stat(path)
+    rows.append({"item": name, "path": path, "created_by": made_by, "last_modified": t})
+comp_df = pd.DataFrame(rows)
+comp_df
+
+
+
+pd.DataFrame([
+    {"item": "ltv_base",   "path": p.ltv_base,   "last_modified": stat(p.ltv_base)[0]},
+    {"item": "legacy_ifs", "path": p.legacy_ifs, "last_modified": stat(p.legacy_ifs)[0]},
+])
+
+
+
+grep -n "expense\|cost_of_capital\|ncor\|cat_loads\|balance\|ltv_base\|legacy" classic_spl_ltv/config/paths.toml
+
+
