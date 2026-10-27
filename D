@@ -5,9 +5,9 @@ The balance section doesn't run because the import pipeline only copies public_r
 
 
 
-bad = worst[worst["abs_diff"] > ATOL].index
-cols = ["adw_pol_id", "release_date",
-        "written_premium_fab", "written_premium_dom",
-        "term_length_fab", "term_length_dom",
-        "state_fab", "state_dom", "zip_fab", "zip_dom"]
-joined.loc[bad, [c for c in cols if c in joined.columns]]
+Hi Yinan, the domino validate notebook is running against the v10 Fabric run. I only changed the config: git_checkout to NB_Classic_SPL_v10.0.0, added pkg_version, and the Domino path to score/public_results.
+Results:
+	•	1,070,161 policies matched. Everything lines up except 20 boat policies. PLE, loss ratios and balance factors match exactly everywhere.
+	•	On those 20 boat policies the written premium coming in is higher in Fabric (same term and state), so the LTV gap comes from the input data, not the scoring. I'm checking whether it's item count or the ltv_base refresh between the two runs.
+	•	Counts: Fabric has about 5k extra rows for Oct 18 to 24 since its run goes past my Domino end date (Oct 17). Within the same dates there are 53 Domino only and 12 Fabric only.
+The balance section doesn't run because the import pipeline only copies public_results. Want me to add a copy step for it?
