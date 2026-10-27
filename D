@@ -1,18 +1,16 @@
-k["release_date"] = pd.to_datetime(k["release_date"])
-CUTOFF = pd.Timestamp("2026-10-17")
+dom_only = domino_scores.merge(fabric_scores[JOIN_KEYS], on=JOIN_KEYS, how="left", indicator=True)
+dom_only = dom_only[dom_only["_merge"] == "left_only"].drop(columns="_merge")
 
-print(k["side"].value_counts())
-print("\nwithin shared dates (<= Oct 17):")
-print(k[k["release_date"] <= CUTOFF]["side"].value_counts())
+fab_only = fabric_scores.merge(domino_scores[JOIN_KEYS], on=JOIN_KEYS, how="left", indicator=True)
+fab_only = fab_only[(fab_only["_merge"] == "left_only") &
+                    (pd.to_datetime(fab_only["release_date"]) <= CUTOFF)].drop(columns="_merge")
 
-# who are the domino-only policies
-dom_only = domino_scores.merge(k[k["side"] == "domino_only"][JOIN_KEYS].assign(release_date=lambda d: d["release_date"].astype(domino_scores["release_date"].dtype)), on=JOIN_KEYS)
-print(f"\ndomino-only rows: {len(dom_only)}")
-print(dom_only.groupby("line").size())
-dom_only.head(20)
+print(f"domino only: {len(dom_only)}, fabric only (shared dates): {len(fab_only)}")
+print("\ndomino only by line:\n", dom_only.groupby("line").size())
+print("\nfabric only by line:\n", fab_only.groupby("line").size())
 
+# same policy, different release date?
+both_ids = set(dom_only["adw_pol_id"]) & set(fab_only["adw_pol_id"])
+print(f"\npolicy IDs in both lists: {len(both_ids)}")
 
-
-fabric_scores = fabric_scores[pd.to_datetime(fabric_scores["release_date"]) <= CUTOFF]
-domino_scores = domino_scores[pd.to_datetime(domino_scores["release_date"]) <= CUTOFF]
-print(len(fabric_scores), len(domino_scores))
+dom_only[["adw_pol_id", "policy_nbr", "line", "state", "release_date", "frst_eff_dt"]].head(20)
