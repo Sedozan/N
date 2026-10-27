@@ -71,3 +71,31 @@ pd.DataFrame([
 grep -n "expense\|cost_of_capital\|ncor\|cat_loads\|balance\|ltv_base\|legacy" classic_spl_ltv/config/paths.toml
 
 
+
+# Non-modeled components: processed files created in this run
+components = [
+    ("expense",            p.processed_expense_all,      "dodo_finance.py"),
+    ("commission agt",     p.processed_commission_agt,   "dodo_finance.py"),
+    ("commission ccc",     p.processed_commission_ccc,   "dodo_finance.py"),
+    ("cat loads",          p.processed_cat_loads,        "dodo_finance.py"),
+    ("NCOR to AAP (risk)", p.ncor_to_aap,                "dodo_finance.py"),
+    ("loss ratio balance", p.balance,                    "dodo_balance.py: process_lr_balance"),
+]
+rows = []
+for name, path, made_by in components:
+    t, _ = stat(path)
+    rows.append({"item": name, "path": path, "created_by": made_by, "last_modified": t})
+comp_df = pd.DataFrame(rows)
+comp_df
+
+
+
+# Raw sources behind the non-modeled components, and upstream inputs
+sources = [
+    ("expense ratios (Finance)",       p.expenses_raw_2027),
+    ("hurricane / wildfire cost of risk", p.ncor_n_p_3_2025),
+    ("ltv_base (upstream)",            p.ltv_base),
+    ("legacy_ifs (upstream)",          p.ltv_base_legacy_ifs),
+]
+pd.DataFrame([{"item": n, "path": path, "last_modified": stat(path)[0]} for n, path in sources])
+
