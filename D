@@ -1,24 +1,17 @@
-from ltv_helpers import pipeline_helpers as ph
+def ls(path):
+    path = path if path.startswith("s3a://") else f"s3a://{path}"
+    jp = spark._jvm.org.apache.hadoop.fs.Path(path)
+    fs = jp.getFileSystem(spark._jsc.hadoopConfiguration())
+    if not fs.exists(jp):
+        print("  does not exist:", path); return
+    for f in fs.listStatus(jp):
+        print(f"  {f.getPath().getName():45} {datetime.fromtimestamp(f.getModificationTime()/1000)}  {f.getLen()}")
 
-new_path = p.risk_prem_float
-old_path = new_path.replace("release/NB_Classic_SPL_v10.0.0", "release/NB_Classic_SPL_v9.4.1")
-print("v10:  ", new_path, stat(new_path))
-print("9.4.1:", old_path, stat(old_path))
+base = "tmx-smsiweb/classic-specialty-ltv/prod/release"
+for b in ["NB_Classic_SPL_v10.0.0", "NB_Classic_SPL_v9.4.1"]:
+    print(b); ls(f"{base}/{b}/risk/")
 
 
-new = ph.read_parquet_s3(spark, new_path).toPandas()
-old = ph.read_parquet_s3(spark, old_path).toPandas()
 
-print("rows:", old.shape[0], "->", new.shape[0])
-print("column differences:", set(old.columns) ^ set(new.columns))
-
-keys = [c for c in new.columns if new[c].dtype == object]   # text columns as keys (state, line, etc.)
-nums = [c for c in new.columns if c not in keys and c in old.columns]
-print("keys:", keys)
-
-m = old.merge(new, on=keys, how="outer", suffixes=("_941", "_v10"), indicator=True)
-print(m["_merge"].value_counts())
-
-for c in nums:
-    d = (m[f"{c}_v10"] - m[f"{c}_941"]).abs()
-    print(f"{c}: rows different = {(d > 1e-9).sum()}, max abs diff = {d.max()}")
+grep -rn "risk_prem_float" classic_spl_ltv/ dodo.py
+grep -n "risk_prem_float\|prem_float" classic_spl_ltv/config/paths.toml
