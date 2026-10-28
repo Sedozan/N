@@ -1,7 +1,10 @@
-export ENV_FOR_DYNACONF=prod DYNACONF_GIT_BRANCH=release/NB_Classic_SPL_v10.0.0 DYNACONF_GIT_CHECKOUT=release/NB_Classic_SPL_v10.0.0
-python -c "from classic_spl_ltv.config import paths as p; print(p.balance)"
-
-
-grep -n "balance" classic_spl_ltv/config/paths.toml
-
-
+rows = []
+for col in ["ltv", "aac_mkt"]:
+    d = diff_frame(joined, col)
+    d["line"] = joined["line_fab"].to_numpy()
+    g = d.groupby("line").agg(policy_count=("abs_diff", "size"),
+                              match_count=("abs_diff", lambda s: int((s <= ATOL).sum())))
+    g["match_rate"] = (g["match_count"] / g["policy_count"] * 100).round(2)
+    g["metric"] = col
+    rows.append(g.reset_index())
+pd.concat(rows)[["line", "metric", "policy_count", "match_count", "match_rate"]]
