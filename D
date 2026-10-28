@@ -1,13 +1,2 @@
-Hi Yinan, I got the domino validate notebook running against the v10 Fabric run. I only changed a few things in the config: git_checkout to NB_Classic_SPL_v10.0.0, added pkg_version, and the Domino path to score/public_results since that's where the import pipeline puts the files.
-Results look really good. 1,070,161 policies matched and everything lines up except 20 boat policies. Landlord, manf home, PUP and spec auto match 100%, and PLE, loss ratios and balance factors match exactly everywhere. On those 20 boat policies Fabric's LTV is higher than Domino's, with the gap ranging from small to large. PLE matches on them, so it's something in the dollar inputs. I'll dig into those tomorrow.
-On counts: Fabric has about 5k extra rows for Oct 18 to 24 since its run goes past my Domino end date (Oct 17), plus 53 Domino only and 12 Fabric only within the same dates.
-The balance section doesn't run because the import pipeline only copies public_results. Want me to add a copy step for it?
-
-
-
-Hi Yinan, the domino validate notebook is running against the v10 Fabric run. I only changed the config: git_checkout to NB_Classic_SPL_v10.0.0, added pkg_version, and the Domino path to score/public_results.
-Results:
-	•	1,070,161 policies matched. Everything lines up except 20 boat policies. PLE, loss ratios and balance factors match exactly everywhere.
-	•	On those 20 boat policies the written premium coming in is higher in Fabric (same term and state), so the LTV gap comes from the input data, not the scoring. I'm checking whether it's item count or the ltv_base refresh between the two runs.
-	•	Counts: Fabric has about 5k extra rows for Oct 18 to 24 since its run goes past my Domino end date (Oct 17). Within the same dates there are 53 Domino only and 12 Fabric only.
-The balance section doesn't run because the import pipeline only copies public_results. Want me to add a copy step for it?
+cd /mnt/code
+python -c "from classic_spl_ltv.config import paths as p; print(p.balance)"
