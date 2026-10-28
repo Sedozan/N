@@ -1,2 +1,7 @@
-cd /mnt/code
+export ENV_FOR_DYNACONF=prod DYNACONF_GIT_BRANCH=release/NB_Classic_SPL_v10.0.0 DYNACONF_GIT_CHECKOUT=release/NB_Classic_SPL_v10.0.0
 python -c "from classic_spl_ltv.config import paths as p; print(p.balance)"
+
+
+grep -n "balance" classic_spl_ltv/config/paths.toml
+
+
