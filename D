@@ -1,5 +1,9 @@
 Here's the full page, following the template. Everything in it comes from your runs except the bracketed links and dates.
 
+print("fabric:", fabric_scores["end_date"].unique())
+print("domino:", domino_scores["end_date"].unique())
+
+
 ---
 
 **Validation**
