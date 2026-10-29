@@ -1,27 +1,25 @@
-for q in [0.80, 0.85, 0.90, 0.95]:
-    s = select_for_narrative(important_featues_all_described[[provider_id, 'Category']], provider_scores, pctl=q)
-    print(f"{q:.0%}:", s.groupby('Category')['Narrate_Selected'].sum().to_dict(),
-          "total", int(s['Narrate_Selected'].sum()))
-print(provider_scores.groupby('Category')['Provider_Score'].describe(percentiles=[.8, .85, .9, .95]).round(3))
+1. Outcome-focused
 
+	•	Refit the loss ratios with cat excluded for Classic v9.4.0 and Renters v1.5.0. The old fits were double counting cat (about 15 LR points, roughly $784M).
+	•	Implemented the 2027 Finance expense file and the 2024-to-present rebalance in both repos.
+	•	Released Classic v9.4.0 and Renters v1.5.0 and ran both release parties.
+	•	Ported the ASC dedup into renters and validated it.
+	•	Retrained the Classic retention model without condo for v10.0.0.
+	•	Diagnosed and fixed prod failures (v9.4 status file crash, Scality auth after the sys-Id change).
+	•	Started on Fabric: reworked the SPL monitoring dashboard and ported the expense validation.
 
+2. Growth-focused
 
+	•	Went from owning pieces to running full releases on both repos.
+	•	Learned the pipeline fails silently. After the 9.4.0 run sequence fell back to 9.3.0, I now check where artifacts come from before calling something done.
+	•	Got deeper on the domain: loss ratio fits, cat, balance factors, and how Finance builds the expense file.
+	•	Picked up Fabric and Power BI, both new to me.
+	•	Moved to a set weekly update. I still want to share work earlier, while it's rough.
 
-k = ['Category', provider_id, 'Analysis_Level']
-d = important_featues_all.copy()
+3. Future-focused
 
-# A. With Category in the key: does it match now?
-d = d.sort_values(k + ['Feature_Rank_The_Provider'])
-d['cum_check'] = d.groupby(k)['Share_Of_Provider_Signal'].cumsum()
-print((d['Cumulative_Signal_Coverage'] - d['cum_check']).abs().describe())
-print(d.groupby(k)['Share_Of_Provider_Signal'].sum().describe())   # should now be exactly 1.0
-
-# B. Is it a running total in SOME order? Sort by the cumulative itself; each step should equal that row's share
-d = d.sort_values(k + ['Cumulative_Signal_Coverage'])
-d['step'] = d.groupby(k)['Cumulative_Signal_Coverage'].diff().fillna(d['Cumulative_Signal_Coverage'])
-print((d['step'] - d['Share_Of_Provider_Signal']).abs().describe())
-
-# C. If B matches, was that order biggest share first?
-d['next_share'] = d.groupby(k)['Share_Of_Provider_Signal'].shift(-1)
-print(f"share never increases along the cumulative order: "
-      f"{(d['next_share'].isna() | (d['next_share'] <= d['Share_Of_Provider_Signal'] + 1e-9)).mean():.1%}")
+	•	Decisions on the open expense items: overhead (about 9% vs 17%) and whether Base Commission New moves to lifetime.
+	•	An independent check from Finance on the expense ratios.
+	•	Release run steps and dates spelled out in the ticket up front.
+	•	Early pairing time on Fabric and clear ownership of my pipelines.
+	•	Moving the dashboard refresh off my personal login onto a service account.
