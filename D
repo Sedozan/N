@@ -1,4 +1,27 @@
-d = important_featues_all.sort_values([provider_id, 'Analysis_Level', 'Feature_Rank_The_Provider'])
-d['cum_check'] = d.groupby([provider_id, 'Analysis_Level'])['Share_Of_Provider_Signal'].cumsum()
+for q in [0.80, 0.85, 0.90, 0.95]:
+    s = select_for_narrative(important_featues_all_described[[provider_id, 'Category']], provider_scores, pctl=q)
+    print(f"{q:.0%}:", s.groupby('Category')['Narrate_Selected'].sum().to_dict(),
+          "total", int(s['Narrate_Selected'].sum()))
+print(provider_scores.groupby('Category')['Provider_Score'].describe(percentiles=[.8, .85, .9, .95]).round(3))
+
+
+
+
+k = ['Category', provider_id, 'Analysis_Level']
+d = important_featues_all.copy()
+
+# A. With Category in the key: does it match now?
+d = d.sort_values(k + ['Feature_Rank_The_Provider'])
+d['cum_check'] = d.groupby(k)['Share_Of_Provider_Signal'].cumsum()
 print((d['Cumulative_Signal_Coverage'] - d['cum_check']).abs().describe())
-print(d.groupby([provider_id, 'Analysis_Level'])['Share_Of_Provider_Signal'].sum().describe())  # 1.0 if nothing was dropped
+print(d.groupby(k)['Share_Of_Provider_Signal'].sum().describe())   # should now be exactly 1.0
+
+# B. Is it a running total in SOME order? Sort by the cumulative itself; each step should equal that row's share
+d = d.sort_values(k + ['Cumulative_Signal_Coverage'])
+d['step'] = d.groupby(k)['Cumulative_Signal_Coverage'].diff().fillna(d['Cumulative_Signal_Coverage'])
+print((d['step'] - d['Share_Of_Provider_Signal']).abs().describe())
+
+# C. If B matches, was that order biggest share first?
+d['next_share'] = d.groupby(k)['Share_Of_Provider_Signal'].shift(-1)
+print(f"share never increases along the cumulative order: "
+      f"{(d['next_share'].isna() | (d['next_share'] <= d['Share_Of_Provider_Signal'] + 1e-9)).mean():.1%}")
