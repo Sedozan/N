@@ -1,5 +1,4 @@
-Hi Yinan, here's where I'm at today:
-	•	Added the balance copy to classic_spl_import_domino_scores. It runs fine, and the balance table matches exactly for all 5 lines. I set BALANCE_KEYS to drv_line since balance is one row per line.
-	•	Validation page is done using Validation 15 as the template: [link]. It's based on your Oct 28 run; counts came out identical to Oct 27 (1,070,161 policies matched).
-	•	LTV and AAC match on every policy for Auto Special, Mobile Home, Landlord and Umbrella. Boat is 99.98%; the 20 policies that differ have a higher written premium coming into Fabric, so it's an input difference, not scoring. Retention, expense ratios, loss ratios, balance and cost of capital match on every policy.
-I think B-3039942 is done, with the DATA workspace rerun as a follow-up. OK to close it? And what should I pick up next?
+d = important_featues_all.sort_values([provider_id, 'Analysis_Level', 'Feature_Rank_The_Provider'])
+d['cum_check'] = d.groupby([provider_id, 'Analysis_Level'])['Share_Of_Provider_Signal'].cumsum()
+print((d['Cumulative_Signal_Coverage'] - d['cum_check']).abs().describe())
+print(d.groupby([provider_id, 'Analysis_Level'])['Share_Of_Provider_Signal'].sum().describe())  # 1.0 if nothing was dropped
