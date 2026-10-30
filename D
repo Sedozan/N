@@ -1,6 +1,82 @@
-fd = pd.to_datetime(fabric_scores["release_date"])
-print(fd.max(), (fd > "2026-10-17").sum())
+Both checks are useful:
+- **4,998 Fabric policies have release dates after Oct 17** (the latest is Oct 24). Add the 12 inside the shared dates and you get the 5,010 Fabric-only total.
+- **Item count is 1 on both sides for all 20 Boat policies**, so that isn't the cause. The premium value coming in is just different.
 
+Here's the full page:
 
-joined.loc[bad, ["adw_pol_id", "item_count_fab", "item_count_dom",
-                 "written_premium_fab", "written_premium_dom"]]
+---
+
+**Validation**
+
+Release v10.0.0 removes Condo from the Classic SPL retention model. Condo now scores in the new SPL model, so it was taken out of Classic. The retention model was retrained without Condo, and v10.0.0 scores Auto Special, Mobile Home, Landlord, Umbrella and Boat.
+
+This release also moves Classic SPL from Domino to Fabric. We need to validate that the scores are consistent between the two platforms.
+
+**Validation Against v9.4.1**
+
+Before migrating to Fabric, we validated the v10.0.0 Domino scores against v9.4.1.
+
+We reviewed and validated the following items:
+1. Waterfall charts
+   a. LTV by line
+   b. LTV by line and channel
+2. PLE comparison by line
+
+Results: [link]
+
+Removing Condo lowers LTV by about 3% overall. Landlord, Mobile Home and Boat drop the most because their predicted retention is lower without Condo. Auto Special and Umbrella are about flat.
+
+*Excel Validation Files*
+[Classic v9.4.1 - Domino]
+[Classic v10.0.0 - Domino]
+
+**Fabric/Domino Direct Comparison**
+
+v10.0.0 was scored on Domino and on Fabric (DATA workspace), both with an end date of October 17, 2026. The same retention model and encoder files were used on both platforms.
+
+Validation can be found in this notebook [link].
+
+*Policy Match Rate*
+
+| Set | Domino Policies | Fabric Policies | Match Count | Domino Match Rate | Fabric Match Rate |
+|---|---|---|---|---|---|
+| Auto Special | 334,222 | 336,188 | 334,214 | 99.99% | 99.41% |
+| Mobile Home | 55,061 | 55,358 | 55,052 | 99.98% | 99.45% |
+| Landlord | 397,812 | 398,957 | 397,780 | 99.99% | 99.70% |
+| Umbrella | 189,374 | 190,413 | 189,371 | 99.99% | 99.45% |
+| Boat | 93,745 | 94,255 | 93,744 | 99.99% | 99.46% |
+| Classic SPL | 1,070,214 | 1,075,171 | 1,070,161 | 99.99% | 99.53% |
+
+Almost every Domino policy is also in Fabric. Fabric has 5,010 policies that Domino doesn't. 4,998 of them have release dates from October 18 to 24, after the end date, and the other 12 are spread across lines. Domino has 53 policies that Fabric doesn't, mostly Landlord. We are looking into why Fabric scores policies with release dates after the end date.
+
+*LTV/AAC Match Rate*
+
+LTV and AAC were considered a match between Domino and Fabric if the difference was less than $0.01.
+
+| Set | Policy Count | Match Count | Match Rate |
+|---|---|---|---|
+| Auto Special LTV | 334,214 | 334,214 | 100% |
+| Auto Special AAC | 334,214 | 334,214 | 100% |
+| Mobile Home LTV | 55,052 | 55,052 | 100% |
+| Mobile Home AAC | 55,052 | 55,052 | 100% |
+| Landlord LTV | 397,780 | 397,780 | 100% |
+| Landlord AAC | 397,780 | 397,780 | 100% |
+| Umbrella LTV | 189,371 | 189,371 | 100% |
+| Umbrella AAC | 189,371 | 189,371 | 100% |
+| Boat LTV | 93,744 | 93,724 | 99.98% |
+| Boat AAC | 93,744 | 93,724 | 99.98% |
+
+LTV and AAC agree within $0.01 for every policy on Auto Special, Mobile Home, Landlord and Umbrella. Boat matches on 99.98% of policies. On the 20 Boat policies that differ, the written premium coming into Fabric is higher than in Domino. These policies have the same term, state and item count on both sides, so the difference is in the premium value itself, not the scoring. All retention, expense ratio, loss ratio, balance and cost of capital columns match on every policy.
+
+*Excel Validation Files*
+[Classic v10.0.0 - Domino]
+[Classic v10.0.0 - Fabric]
+
+**Balance Factors**
+
+The Fabric run uses a straight copy of the balance factors from the v10.0.0 Domino run; they were not rebalanced on Fabric. The balance table matches exactly between Domino and Fabric for all 5 lines.
+
+---
+
+STG and DATA
+We first ran this comparison in the STG workspace, then repeated it in the DATA workspace after the pipelines were deployed. The results are identical in both: 1,070,161 policies matched, and LTV and AAC agree on every policy except the same 20 Boat policies. Deploying from STG to DATA did not change the scores.
