@@ -1,6 +1,6 @@
-a = pd.DataFrame(audit_rows)
-cols = [provider_id, 'Category', 'Reasoning_Level', 'Attempts', 'New_Tokens', 'Hit_Token_Limit', 'Parse', 'Analysis_Chars', 'Error']
-print(REASONING_TOKEN_BUDGET)
-print(a[cols].to_string())
-for r in a.itertuples():
-    print(getattr(r, provider_id), '|', repr(str(r.Raw_Final)[:200]))
+fd = pd.to_datetime(fabric_scores["release_date"])
+print(fd.max(), (fd > "2026-10-17").sum())
+
+
+joined.loc[bad, ["adw_pol_id", "item_count_fab", "item_count_dom",
+                 "written_premium_fab", "written_premium_dom"]]
