@@ -1,0 +1,6 @@
+for cat, (folder, _) in CATEGORY_FOLDERS.items():
+    p = f'{PROJECTS}/{folder}/scoring_data/rolling_6m_score_monthly_scoring_file.csv.gz'
+    if os.path.exists(p):
+        cols = pd.read_csv(p, compression='gzip', nrows=0).columns
+        print(f'\n{cat} ({len(cols)} columns):')
+        print(sorted(cols))
