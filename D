@@ -1,3 +1,10 @@
+for path in ["Files/data/classic_spl_ltv/prod",
+             "Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0_20261027"]:
+    print(path, "->", [f.name for f in notebookutils.fs.ls(path)])
+
+
+
+
 # 1. real key names
 print([k for k in dir(p) if "internal" in k or "balance" in k])
 
