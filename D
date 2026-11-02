@@ -1,3 +1,30 @@
+import notebookutils
+import ltv_helpers.fabric_pipeline_helpers as fh
+from classic_spl_ltv.config import run_paths
+
+p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
+
+# Only these four lines change between STG and DATA
+V941_SCORES = "Files/domino/prod/NB_Classic_SPL_v9.4.1/score/score_internal_results"
+V10_SCORES  = "Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0_20261027/score/score_internal_results"
+V910_BAL    = "Files/domino/prod/release/NB_Classic_SPL_v9.1.0/balance/all_state_lines"
+V10_BAL     = p.balance
+
+for name, path in [("v941 scores", V941_SCORES), ("v10 scores", V10_SCORES),
+                   ("v910 balance", V910_BAL), ("v10 balance", V10_BAL)]:
+    assert notebookutils.fs.exists(path), f"{name} not found: {path}"
+
+ltv_benchmark = spark.read.parquet(V941_SCORES)
+ltv_feat      = fh.read_delta_table(spark, V10_SCORES)
+bal_benchmark = spark.read.parquet(V910_BAL).toPandas()
+bal_feat      = fh.read_delta_table(spark, V10_BAL).toPandas()
+
+
+
+
+
+
+
 print(subprocess.run(["sed", "-n", "20,60p", f"{root}/jobs/score/3_deliver.py"],
                      capture_output=True, text=True).stdout)
 
