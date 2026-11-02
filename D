@@ -1,40 +1,30 @@
-for path in ["Files/data/classic_spl_ltv/prod",
-             "Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0_20261027"]:
-    print(path, "->", [f.name for f in notebookutils.fs.ls(path)])
+from delta.tables import DeltaTable
+RUN = "Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0_20261027"
+V10_SCORES = f"{RUN}/score/score_internal_results"
+
+print([f.name for f in notebookutils.fs.ls(f"{RUN}/score")])
+print("delta:", notebookutils.fs.exists(f"{V10_SCORES}/_delta_log"))
+DeltaTable.forPath(spark, V10_SCORES).history(3).select("timestamp", "operation").show(truncate=False)
+
+
+internal = fh.read_delta_table(spark, V10_SCORES)
+print([c for c in internal.columns if any(k in c for k in ["ltv", "days_after", "release", "pol_id"])])
 
 
 
+from pyspark.sql import functions as F
 
-# 1. real key names
-print([k for k in dir(p) if "internal" in k or "balance" in k])
+pub = fh.read_delta_table(spark, p.public_results).select("adw_pol_id", "release_date", "ltv")
+i28 = (internal.filter(F.col("days_after_eff_date") == 28)
+       .select("adw_pol_id",
+               F.col("release_day_pol").alias("release_date"),
+               F.col("ltv_num").alias("ltv_int")))
 
-# 2. format: Delta has a _delta_log folder
-for path in [p.score_internal_results, p.balance]:
-    print(path, notebookutils.fs.exists(path), notebookutils.fs.exists(f"{path}/_delta_log"))
-
-
-import notebookutils
-import ltv_helpers.fabric_pipeline_helpers as fh
-from classic_spl_ltv.config import run_paths
-
-p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
-
-V941_SCORES = "Files/domino/prod/NB_Classic_SPL_v9.4.1/score/score_internal_results"
-V910_BAL    = "Files/domino/prod/release/NB_Classic_SPL_v9.1.0/balance/all_state_lines"
-
-for name, path in [("v941 scores", V941_SCORES), ("v10 scores", p.score_internal_results),
-                   ("v910 balance", V910_BAL), ("v10 balance", p.balance)]:
-    print(name, path, notebookutils.fs.exists(path))
-
-ltv_benchmark = spark.read.parquet(V941_SCORES)
-ltv_feat      = fh.read_delta_table(spark, p.score_internal_results)
-bal_benchmark = spark.read.parquet(V910_BAL).toPandas()
-bal_feat      = fh.read_delta_table(spark, p.balance).toPandas()
+print("public:", pub.count(), "| internal day 28:", i28.count())
+m = pub.join(i28, ["adw_pol_id", "release_date"])
+m.select(F.count("*").alias("matched"),
+         F.sum((F.abs(F.col("ltv") - F.col("ltv_int")) <= 0.01).cast("int")).alias("ltv_within_1c")).show()
 
 
 
-for path in ["Files", "Files/data", "Files/data/classic_spl_ltv", "Files/data/classic_spl_ltv/score"]:
-    try:
-        print(path, "->", [f.name for f in notebookutils.fs.ls(path)])
-    except Exception as e:
-        print(path, "-> not found")
+print([f.name for f in notebookutils.fs.ls("Files/data/classic_spl_ltv/score")])
