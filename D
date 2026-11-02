@@ -1,6 +1,2 @@
-for cat, (folder, _) in CATEGORY_FOLDERS.items():
-    p = f'{PROJECTS}/{folder}/scoring_data/rolling_6m_score_monthly_scoring_file.csv.gz'
-    if os.path.exists(p):
-        cols = pd.read_csv(p, compression='gzip', nrows=0).columns
-        print(f'\n{cat} ({len(cols)} columns):')
-        print(sorted(cols))
+Yes, I did. When I ran it in DATA on Friday I added a few cells: a path check, an end_date check, the LTV/AAC match by line (that's where the page numbers come from), and a few cells to look into the 20 Boat policies and the extra Fabric rows after Oct 17.
+I'd keep the path check, end_date check and the by-line table, and drop the rest. I'll update STG, push a PR, and then we can redeploy to DATA so they match. Sound good?
