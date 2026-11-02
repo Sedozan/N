@@ -1,3 +1,24 @@
+i28 = (internal
+       .withColumn("days_after_eff_date", F.datediff("release_day", "rhf_ply_eff_dt"))  # use the formula you found
+       .filter(F.col("days_after_eff_date") == 28)
+       .select("adw_pol_id",
+               F.col("release_day_pol").alias("release_date"),
+               F.col("ltv_num_e006scl").alias("ltv_int")))
+
+
+
+
+
+
+import classic_spl_ltv, os, subprocess
+root = os.path.dirname(classic_spl_ltv.__file__)
+print(subprocess.run(["grep", "-rn", "days_after_eff_date", root], capture_output=True, text=True).stdout)
+
+
+
+
+
+
 from delta.tables import DeltaTable
 RUN = "Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0_20261027"
 V10_SCORES = f"{RUN}/score/score_internal_results"
