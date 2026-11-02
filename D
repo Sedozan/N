@@ -23,3 +23,11 @@ ltv_benchmark = spark.read.parquet(V941_SCORES)
 ltv_feat      = fh.read_delta_table(spark, p.score_internal_results)
 bal_benchmark = spark.read.parquet(V910_BAL).toPandas()
 bal_feat      = fh.read_delta_table(spark, p.balance).toPandas()
+
+
+
+for path in ["Files", "Files/data", "Files/data/classic_spl_ltv", "Files/data/classic_spl_ltv/score"]:
+    try:
+        print(path, "->", [f.name for f in notebookutils.fs.ls(path)])
+    except Exception as e:
+        print(path, "-> not found")
