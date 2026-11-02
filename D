@@ -1,2 +1,13 @@
 Yes, I did. When I ran it in DATA on Friday I added a few cells: a path check, an end_date check, the LTV/AAC match by line (that's where the page numbers come from), and a few cells to look into the 20 Boat policies and the extra Fabric rows after Oct 17.
 I'd keep the path check, end_date check and the by-line table, and drop the rest. I'll update STG, push a PR, and then we can redeploy to DATA so they match. Sound good?
+
+
+git fetch origin
+git log HEAD..origin/release/NB_Classic_SPL_v10.0.0 --oneline
+git diff --stat HEAD origin/release/NB_Classic_SPL_v10.0.0
+
+git merge origin/release/NB_Classic_SPL_v10.0.0
+
+git switch release/NB_Classic_SPL_v10.0.0
+git pull --ff-only origin release/NB_Classic_SPL_v10.0.0
+
