@@ -1,13 +1,25 @@
-Yes, I did. When I ran it in DATA on Friday I added a few cells: a path check, an end_date check, the LTV/AAC match by line (that's where the page numbers come from), and a few cells to look into the 20 Boat policies and the extra Fabric rows after Oct 17.
-I'd keep the path check, end_date check and the by-line table, and drop the rest. I'll update STG, push a PR, and then we can redeploy to DATA so they match. Sound good?
+# 1. real key names
+print([k for k in dir(p) if "internal" in k or "balance" in k])
+
+# 2. format: Delta has a _delta_log folder
+for path in [p.score_internal_results, p.balance]:
+    print(path, notebookutils.fs.exists(path), notebookutils.fs.exists(f"{path}/_delta_log"))
 
 
-git fetch origin
-git log HEAD..origin/release/NB_Classic_SPL_v10.0.0 --oneline
-git diff --stat HEAD origin/release/NB_Classic_SPL_v10.0.0
+import notebookutils
+import ltv_helpers.fabric_pipeline_helpers as fh
+from classic_spl_ltv.config import run_paths
 
-git merge origin/release/NB_Classic_SPL_v10.0.0
+p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
 
-git switch release/NB_Classic_SPL_v10.0.0
-git pull --ff-only origin release/NB_Classic_SPL_v10.0.0
+V941_SCORES = "Files/domino/prod/NB_Classic_SPL_v9.4.1/score/score_internal_results"
+V910_BAL    = "Files/domino/prod/release/NB_Classic_SPL_v9.1.0/balance/all_state_lines"
 
+for name, path in [("v941 scores", V941_SCORES), ("v10 scores", p.score_internal_results),
+                   ("v910 balance", V910_BAL), ("v10 balance", p.balance)]:
+    print(name, path, notebookutils.fs.exists(path))
+
+ltv_benchmark = spark.read.parquet(V941_SCORES)
+ltv_feat      = fh.read_delta_table(spark, p.score_internal_results)
+bal_benchmark = spark.read.parquet(V910_BAL).toPandas()
+bal_feat      = fh.read_delta_table(spark, p.balance).toPandas()
