@@ -1,3 +1,5 @@
-domino/prod/release/NB_Classic_SPL_v9.1.0/balance/all_state_lines
+Rerun on November 3, 2026 after the DATA scores were regenerated; results unchanged.
 
-classic-specialty-ltv/prod/release/NB_Classic_SPL_v9.1.0/balance
+Message to Yinan:
+
+Reran the validation in DATA on the regenerated scores. Results are identical to before: 1,070,161 policies matched, LTV and AAC match on every policy except the same 20 Boat policies. The Loop page is still accurate; I added a note that it was rerun today.
