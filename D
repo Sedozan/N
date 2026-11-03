@@ -1,5 +1,2 @@
-Rerun on November 3, 2026 after the DATA scores were regenerated; results unchanged.
-
-Message to Yinan:
-
-Reran the validation in DATA on the regenerated scores. Results are identical to before: 1,070,161 policies matched, LTV and AAC match on every policy except the same 20 Boat policies. The Loop page is still accurate; I added a note that it was rerun today.
+	•	Run the waterfall notebook in the DATA workspace and save the plots to the DATA lakehouse under Files/waterfall/<new version>_vs_<previous version>/ (e.g. Files/waterfall/v10.0.0_vs_v9.4.1/)
+	•	Export the validation and waterfall notebooks as HTML after the run, and link them in the Loop release notes
