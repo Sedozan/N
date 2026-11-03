@@ -1,2 +1,3 @@
-	•	Run the waterfall notebook in the DATA workspace and save the plots to the DATA lakehouse under Files/waterfall/<new version>_vs_<previous version>/ (e.g. Files/waterfall/v10.0.0_vs_v9.4.1/)
-	•	Export the validation and waterfall notebooks as HTML after the run, and link them in the Loop release notes
+Sorry for the delay! For Classic SPL, the base file is ltv_base, which comes from the eltv pipeline:
+	•	Scality: tmx-smsiweb/eltv_pipeline/prod/main/core/ltv_base (legacy_ifs is in the same folder)
+	•	Fabric: Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/eltv_pipeline/core/ltv_base in the CLV_lakehouse_classic_spl_DATA lakehouse (copied from Scality on each run)
