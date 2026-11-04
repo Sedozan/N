@@ -1,2 +1,10 @@
-cd /mnt/code
-grep -rn "end_date\|run_on_weekdays\|weekday\|saturday" run_weekly_spl.py *weekly_config*.yaml
+sed -n 1,15p weekly_config_v9.4.yaml        # run_on_weekdays values
+sed -n 210,250p run_weekly_spl.py           # what the status-file check does
+sed -n 440,500p run_weekly_spl.py           # what happens when upstream isn't ready
+
+
+For B-3074669, I checked how the Domino weekly job works: end_date is the most recent Saturday, it runs Wed to Fri, only scores once the upstream eltv files for that week are refreshed, and skips if it already succeeded for that end_date. My plan for Fabric is a Wed to Fri schedule with a small gate step that computes end_date, checks ltv_base has data through that date and that the week hasn't already run, then runs scoring, with an override for manual dates and a failure email. Does that sound right? Also, the Domino weekly job still runs v9.4.1. Should it be turned off once Fabric is scheduled?
+
+
+
+For B-3074669, I looked at how the Domino weekly job sets end_date: it's the most recent Saturday before the run date. I'm planning to compute it the same way in the Fabric pipeline, with an override so we can still pass a date manually. The Domino script also seems to check that the upstream eltv files are refreshed before scoring and to avoid rerunning a week that already succeeded. I'm confirming that now, since I'd like to keep both in Fabric. Also, weekly_config_v9.4.yaml still points to v9.4.1. Is that the config the current Domino schedule uses, and should it be turned off once Fabric is live?
