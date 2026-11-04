@@ -1,3 +1,8 @@
-Sorry for the delay! For Classic SPL, the base file is ltv_base, which comes from the eltv pipeline:
-	•	Scality: tmx-smsiweb/eltv_pipeline/prod/main/core/ltv_base (legacy_ifs is in the same folder)
-	•	Fabric: Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/eltv_pipeline/core/ltv_base in the CLV_lakehouse_classic_spl_DATA lakehouse (copied from Scality on each run)
+import os
+
+PLOT_DIR = f"/lakehouse/default/Files/waterfall/{new_version_name}_vs_{benchmark_version_name}"
+os.makedirs(PLOT_DIR, exist_ok=True)
+print(PLOT_DIR)
+
+
+fig.savefig(f"{PLOT_DIR}/ltv_waterfall_{line}.png", dpi=150, bbox_inches="tight")
