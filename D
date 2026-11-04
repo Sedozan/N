@@ -1,8 +1,2 @@
-import os
-
-PLOT_DIR = f"/lakehouse/default/Files/waterfall/{new_version_name}_vs_{benchmark_version_name}"
-os.makedirs(PLOT_DIR, exist_ok=True)
-print(PLOT_DIR)
-
-
-fig.savefig(f"{PLOT_DIR}/ltv_waterfall_{line}.png", dpi=150, bbox_inches="tight")
+cd /mnt/code
+grep -rn "end_date\|run_on_weekdays\|weekday\|saturday" run_weekly_spl.py *weekly_config*.yaml
