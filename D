@@ -1,14 +1,48 @@
-Line 78 (condo) was removed from the model in v10.0.0. Find every remaining
-place in this repo that scores, filters, loops over, configures, or reads/writes
-data for line 78.
+Your message cut off at "I think if", so send the rest if there's more. Here's where I land on the four questions. The screenshot helps: the weekly pipeline (`classic_spl_weekly_scoring_pipeline`) has `end_date` as a parameter, defaulting to `20261017`.
 
-Search for: 78 as int and string, "condo", line_pt, line lists/dicts, config
-in classic_spl_ltv/config and paths.toml, jobs/score/1_policy.py, and the
-notebooks folder.
+## 1. How can a parameter change dynamically?
 
-Step 1: list every hit with file, line number, and what it does. Flag which are
-true line 78 logic vs false positives (e.g. 78 in an unrelated number).
-Do not edit anything yet.
+It can't on its own. A parameter's default is a fixed value, and a schedule always runs with the defaults. There are two ways around that:
 
-Step 2 (after I confirm): remove the line 78 logic. Do not change behavior for
-any other line. Do not delete data or S3 partitions.
+- **A. Wrapper pipeline (my recommendation):** a small new pipeline computes the date and calls `classic_spl_weekly_scoring_pipeline` with an **Invoke Pipeline** activity, passing `end_date` in. The weekly pipeline doesn't change at all. You schedule the wrapper, not the weekly pipeline.
+- **B. Inside the weekly pipeline:** add a Set variable activity at the start that computes the date (or uses the parameter if one is passed), then change every activity to use the variable instead of the parameter. This works, but it means editing Yinan's pipeline in several places.
+
+## 2. How does end_date affect the codebase?
+
+This is the right question, and it should be answered **before** choosing anything. I don't know the full answer, and there's one finding that shows why it matters: in the validation, both runs had end_date Oct 17, but Fabric still scored **4,998 policies with release dates after Oct 17**, and Domino didn't. So end_date doesn't do the same thing on both platforms. It may not filter the population on Fabric at all.
+
+To map it:
+```bash
+# Fabric repo
+git grep -n "end_date"
+# Classic repo, for comparison
+grep -rn "end_date" classic_spl_ltv/ --include=*.py | grep -v test
+```
+And in the pipeline: **View → Edit JSON code**, then Ctrl+F `end_date`. That shows which activities use it. I'd check `filter_copy_ltv_base` first, since the name suggests it filters ltv_base, possibly by date.
+
+Build a short table from that: where end_date is used, what it does (filter, folder name, label in the output, Excel name), and Domino vs Fabric. That table is also something useful to show the team.
+
+## 3. Does the notebook make the parameter useless?
+
+No. The parameter stays the **single input** the whole weekly pipeline uses. What changes is who fills it in:
+- **Scheduled run:** the gate computes the date and the wrapper passes it into `end_date`.
+- **Manual run:** you type a date into the wrapper's parameter, the gate uses it as the override, and it flows through the same way. Or you run the weekly pipeline directly, exactly as today.
+
+One risk to fix either way: the default `20261017` is used silently if someone runs the weekly pipeline without changing it. I'd set the default to empty and have the pipeline (or the gate) fail if it's empty, so an old date is never used by accident.
+
+## 4. Should we use a JSON instead?
+
+A JSON can **hold the rule**, but it can't **compute the date**. Something still has to read it and do the math.
+- **Storing the settings** (end date weekday = Saturday, timezone, run days) in a config is a good idea. That's how Domino does it (`weekly_config_v9.4.yaml`). In Fabric, the **variable library** is the native place for settings like that, and it already exists in this workspace. A JSON file in the lakehouse works too.
+- **Storing the computed date** in a JSON that the parameter points to doesn't help. Something has to rewrite the JSON every week, which is the same problem moved somewhere else, and if that step fails, the pipeline silently reads last week's date. Since the date can always be computed from today, it's safer to compute it each run than to store it.
+
+## Summary for the team
+
+| Option | Date automatic? | Checks upstream? | Changes weekly pipeline? |
+|---|---|---|---|
+| Expression in a wrapper | Yes | No | No |
+| Gate notebook in a wrapper | Yes | Yes | No |
+| Set variable inside the weekly pipeline | Yes | No | Yes, every end_date reference |
+| JSON holding the date | No, someone updates it | No | Small |
+
+**My recommendation:** map end_date first (question 2). Then a wrapper pipeline with the gate notebook, with the rule settings in the variable library and the weekly pipeline unchanged apart from an empty default. If the team wants the simplest version first, the wrapper with only the expression is a fine first step, and the gate can be added later without changing anything else.
