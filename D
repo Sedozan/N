@@ -1,20 +1,14 @@
-git switch feature/B-3074672
-git pull
-Copy-Item notebooks\<your_notebook_file> $HOME\Desktop\
+Line 78 (condo) was removed from the model in v10.0.0. Find every remaining
+place in this repo that scores, filters, loops over, configures, or reads/writes
+data for line 78.
 
+Search for: 78 as int and string, "condo", line_pt, line lists/dicts, config
+in classic_spl_ltv/config and paths.toml, jobs/score/1_policy.py, and the
+notebooks folder.
 
-git log --oneline -5              # find your commit sha
-git show --stat <sha>             # confirm it only touched your notebook
-git revert <sha> --no-edit
-git push
+Step 1: list every hit with file, line number, and what it does. Flag which are
+true line 78 logic vs false positives (e.g. 78 in an unrelated number).
+Do not edit anything yet.
 
-
-git switch main
-git pull
-git switch -c feature/B-3071678
-Copy-Item $HOME\Desktop\<your_notebook_file> notebooks\classic_spl_waterfall_and_univars.<ext>
-git add notebooks\classic_spl_waterfall_and_univars.<ext>
-git commit -m "B-3071678: add waterfall and univars notebook"
-git push -u origin feature/B-3071678
-
-
+Step 2 (after I confirm): remove the line 78 logic. Do not change behavior for
+any other line. Do not delete data or S3 partitions.
