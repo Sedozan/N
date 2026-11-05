@@ -1,11 +1,20 @@
-For B-3074669, here's what I recommend after looking at the options and the Domino job:
-Approach: a new weekly pipeline that starts with a small gate notebook. It computes end_date (last Saturday, Central, same rule as Domino), checks that ltv_base has data through that date and that the week hasn't already been scored, and only then calls the scoring pipeline. A manual end_date can still be passed to override it.
-Why not simpler options:
-	•	A variable library won't work for this; its values are static, so someone would still update the date every week.
-	•	A pipeline expression can compute the date, but it can't check that upstream is ready. With a plain schedule, a late eltv refresh means we silently score last week's ltv_base. The Domino job has a gate for this, and I'd like to keep it.
-Schedule: Wed to Fri like Domino, so a late upstream gets retried, and the gate makes sure we only score once. Fabric's built-in retry and timeout settings replace the restart and "running too long" logic, so only the date and gate need to be built.
-Alerts: a failure email, and an "upstream not ready" email if data still isn't there by Friday.
-I'll build and test it in STG first. Three things I need from you:
-	1.	OK on this approach?
-	2.	Who should get the emails?
-	3.	The Domino weekly job still scores v9.4.1. Should we turn it off once the Fabric schedule is live, or run both for a week to compare?
+git switch feature/B-3074672
+git pull
+Copy-Item notebooks\<your_notebook_file> $HOME\Desktop\
+
+
+git log --oneline -5              # find your commit sha
+git show --stat <sha>             # confirm it only touched your notebook
+git revert <sha> --no-edit
+git push
+
+
+git switch main
+git pull
+git switch -c feature/B-3071678
+Copy-Item $HOME\Desktop\<your_notebook_file> notebooks\classic_spl_waterfall_and_univars.<ext>
+git add notebooks\classic_spl_waterfall_and_univars.<ext>
+git commit -m "B-3071678: add waterfall and univars notebook"
+git push -u origin feature/B-3071678
+
+
