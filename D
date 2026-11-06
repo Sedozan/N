@@ -1,29 +1,4 @@
-Since March I worked on two things for AHCCCS: the anomaly detection models and the Policy Intelligence Engine (PIE).
-
-Value delivered
-
-	•	Anomaly detection: I improved the AI models and added peer statistics and fields to rank providers. I also made the SHAP and LLM summaries easier for investigators to read.
-	•	PIE: I took it from an idea to a working MVP. It turns AHCCCS billing policy into rules with citations that run as checks on paid claims. 289 extracted rules were reviewed and 42 checks are running. 24 checks were stopped before they could flag providers who billed correctly.
-
-Helping others
-
-	•	I built provider statistics (peer comparisons and procedure-code trends) so our investigators could review cases more thoroughly and present a clearer story to the state.
-	•	Investigators now get model explanations in their language, not model language.
-	•	PIE rules are stored as documented tables other teams can use, so the work can continue after our engagement.
-	•	I set up an internal review so the team checked policy accuracy before anything went to the client.
-
-Skills learned
-
-	•	Running large language models on Databricks GPU, and testing their output before trusting it.
-	•	Medicaid policy: NCCI edits, the AHCCCS billing manual and behavioral health rules.
-	•	Explaining technical work in plain words. Early feedback said my decks were too technical, and I fixed that.
-
-Company values
-
-	•	Clients First: when a rule is unclear, it stays a note for review instead of flagging a provider.
-	•	Foresight: I focused PIE on behavioral health first and built it so other claim types can be added later.
-	•	Teamwork: SMEs and investigators shaped what we built.
-
-What I will improve
-I spent too long making the engine solid before checking if investigators find it useful. Next I will measure accuracy and get investigator feedback early.
-
+# code only, no pager, saved to a file
+git --no-pager grep -n "end_date" -- . ":!docs" > end_date_code.txt
+# where the population window is set
+git --no-pager grep -n "current_date" -- . ":!docs"
