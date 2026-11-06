@@ -1,4 +1,13 @@
-# code only, no pager, saved to a file
-git --no-pager grep -n "end_date" -- . ":!docs" > end_date_code.txt
-# where the population window is set
-git --no-pager grep -n "current_date" -- . ":!docs"
+from pyspark.sql import functions as F
+import notebookutils
+from classic_spl_ltv.config import run_paths
+
+p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
+path = p.ltv_base
+print(path)
+
+fmt = "delta" if notebookutils.fs.exists(path + "/_delta_log") else "parquet"
+df = spark.read.format(fmt).load(path)
+df.agg(F.min("release_day_pol").alias("min_date"),
+       F.max("release_day_pol").alias("max_date"),
+       F.count("*").alias("rows")).show()
