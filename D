@@ -1,13 +1,15 @@
-from pyspark.sql import functions as F
-import notebookutils
-from classic_spl_ltv.config import run_paths
+Week of 11/2 to 11/6
 
-p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
-path = p.ltv_base
-print(path)
+Completed
 
-fmt = "delta" if notebookutils.fs.exists(path + "/_delta_log") else "parquet"
-df = spark.read.format(fmt).load(path)
-df.agg(F.min("release_day_pol").alias("min_date"),
-       F.max("release_day_pol").alias("max_date"),
-       F.count("*").alias("rows")).show()
+	•	B-3039942: validated Domino vs v10 scores in STG and DATA, analyzed the output, documented it on Loop. 99.9%+ match. 20 Boat policies differ, from an input premium discrepancy, not scoring.
+	•	B-3071678: cleaned up the waterfall/univars notebook (dropped the engagement variable, made it general), moved it to its own branch off v10.1.0, opened the PR, deleted the old STG and DATA copies.
+
+Ongoing
+
+	•	B-3044909: removing the last line 78 (condo) scoring from 1_policy.py and the f_classic_clv pipeline, onto v10.1.0. Changes made; validating a run before I commit.
+	•	B-3074669: auto end_date and weekly scheduling for Classic SPL in Fabric DATA. Investigated how end_date flows through the codebase, strategized the Domino-to-Fabric port, designed the end_date logic, built a notebook to support the scheduled run. Holding the live schedule until I add a refresh check so it can't score stale data under a new date.
+
+Not started
+
+	•	None
