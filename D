@@ -1,5 +1,1 @@
-@if(empty(pipeline().parameters.end_date),
-  formatDateTime(addDays(convertFromUtc(utcnow(), 'Central Standard Time'),
-    sub(0, add(int(dayOfWeek(convertFromUtc(utcnow(), 'Central Standard Time'))), 1))),
-  'yyyyMMdd'),
-  pipeline().parameters.end_date)
+Yes, same end_date. Any run between Sunday and the next Saturday gets last Saturday, so this week it would be 20261107 every time, same as Domino. Right now the pipeline doesn't check if the week was already scored, so a 2nd run would just score it again and overwrite the output. I'm adding a check for that next so it skips the week if it's already done.
