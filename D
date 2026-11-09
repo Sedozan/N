@@ -1,15 +1,5 @@
-Week of 11/2 to 11/6
-
-Completed
-
-	•	B-3039942: validated Domino vs v10 scores in STG and DATA, analyzed the output, documented it on Loop. 99.9%+ match. 20 Boat policies differ, from an input premium discrepancy, not scoring.
-	•	B-3071678: cleaned up the waterfall/univars notebook (dropped the engagement variable, made it general), moved it to its own branch off v10.1.0, opened the PR, deleted the old STG and DATA copies.
-
-Ongoing
-
-	•	B-3044909: removing the last line 78 (condo) scoring from 1_policy.py and the f_classic_clv pipeline, onto v10.1.0. Changes made; validating a run before I commit.
-	•	B-3074669: auto end_date and weekly scheduling for Classic SPL in Fabric DATA. Investigated how end_date flows through the codebase, strategized the Domino-to-Fabric port, designed the end_date logic, built a notebook to support the scheduled run. Holding the live schedule until I add a refresh check so it can't score stale data under a new date.
-
-Not started
-
-	•	None
+@if(empty(pipeline().parameters.end_date),
+  formatDateTime(addDays(convertFromUtc(utcnow(), 'Central Standard Time'),
+    sub(0, add(int(dayOfWeek(convertFromUtc(utcnow(), 'Central Standard Time'))), 1))),
+  'yyyyMMdd'),
+  pipeline().parameters.end_date)
