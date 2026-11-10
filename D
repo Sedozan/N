@@ -1,19 +1,4 @@
-p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
-print(p.public_results)
-
-pr = fh.read_delta_table(spark, p.public_results)
-print(pr.schema["end_date"].dataType)
-pr.groupBy("end_date").count().orderBy("end_date").show()
-
-
-
-from delta.tables import DeltaTable
-from classic_spl_ltv.config import run_paths
-
-p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
-
-(DeltaTable.forPath(spark, p.public_results).history()
-   .select("version", "timestamp", "operation", "operationParameters")
-   .orderBy("version")
-   .show(truncate=False))
-
+from pyspark.sql import functions as F
+for line in ["16", "32", "72", "88", "90"]:
+    df = spark.read.parquet(f"Files/eltv_ltv_base/drv_line_pt={line}")
+    print(line, df.agg(F.max("release_day_pol")).first()[0])
