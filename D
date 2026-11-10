@@ -1,4 +1,4 @@
-from pyspark.sql import functions as F
-for line in ["16", "32", "72", "88", "90"]:
-    df = spark.read.parquet(f"Files/eltv_ltv_base/drv_line_pt={line}")
-    print(line, df.agg(F.max("release_day_pol")).first()[0])
+@json(activity('classic_spl_weekly_gate').output.result.exitValue).run
+
+
+@json(activity('classic_spl_weekly_gate').output.result.exitValue).end_date
