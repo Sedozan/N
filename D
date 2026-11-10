@@ -1,1 +1,7 @@
-Yes, same end_date. Any run between Sunday and the next Saturday gets last Saturday, so this week it would be 20261107 every time, same as Domino. Right now the pipeline doesn't check if the week was already scored, so a 2nd run would just score it again and overwrite the output. I'm adding a check for that next so it skips the week if it's already done.
+p = run_paths.make_paths("score", "NB_Classic_SPL_v10.0.0", "10.0.0", end_date=None)
+print(p.public_results)
+
+pr = fh.read_delta_table(spark, p.public_results)
+print(pr.schema["end_date"].dataType)
+pr.groupBy("end_date").count().orderBy("end_date").show()
+
