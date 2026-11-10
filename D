@@ -1,4 +1,8 @@
-@json(activity('classic_spl_weekly_gate').output.result.exitValue).run
+•	Body (dynamic content): 
+
+@activity('classic_spl_weekly_gate').error.message
 
 
-@json(activity('classic_spl_weekly_gate').output.result.exitValue).end_date
+•	Body (dynamic content): 
+
+@concat('Scoring run failed. Pipeline run ID: ', pipeline().RunId, '. Check Monitor.')
