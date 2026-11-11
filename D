@@ -1,14 +1,18 @@
-# 1. retention/data/scored was SKIP at depth 0; go one level deeper
-scan("Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/retention/data/scored", depth=2)
+from types import SimpleNamespace as NS
 
-# 2. find the balance and risk output paths
-{a: getattr(p, a) for a in dir(p)
- if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk", "lr", "constant"])}
+paths = {a: getattr(p, a) for a in dir(p)
+         if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk"])}
 
-
-# 1. retention/data/scored was SKIP at depth 0; go one level deeper
-scan("Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/retention/data/scored", depth=2)
-
-# 2. find the balance and risk output paths
-{a: getattr(p, a) for a in dir(p)
- if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk", "lr", "constant"])}
+for a, path in paths.items():
+    if not notebookutils.fs.exists(path):
+        print(f"MISSING {a}"); continue
+    df = load(NS(name=path.split("/")[-1], path=path))
+    if df is None:
+        print(f"SKIP   {a}"); continue
+    cols = [c for c in df.columns if any(k in c.lower() for k in ["line", "lob"])]
+    if not cols:
+        print(f"NOCOL  {a}: {df.columns[:12]}"); continue
+    for c in cols:
+        n = df.filter(F.lower(F.col(c).cast("string"))
+                      .isin("78", "condo", "condominiums")).count()
+        print(f"{'HIT' if n else 'ok':6} {a} {c} {n}")
