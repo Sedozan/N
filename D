@@ -1,16 +1,8 @@
-git stash
-git fetch origin
-git branch -r | Select-String "10.1"
+git merge origin/release/NB_Classic_SPL_v10.1.0
 
-
-git checkout -b feature/B-3044909 origin/<release-branch-name>
 git stash pop
-git status
 git diff --stat
 
-
-git stash show stash@{0}
-
-git checkout feature/B-3044909
-git --no-pager log --oneline -5
-git --no-pager log --oneline HEAD..origin/release/NB_Classic_SPL_v10.1.0
+git add classic_spl_ltv/jobs/score/1_policy.py classic_spl_ltv/jobs/balance/driver_loss_balance.py classic_spl_ltv/jobs/risk/make_constants.py
+git commit -m "B-3044909: remove line 78 (condo) from 1_policy, driver_loss_balance, make_constants"
+git push -u origin feature/B-3044909
