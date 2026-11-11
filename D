@@ -1,8 +1,8 @@
-•	Body (dynamic content): 
+Coverage for jobs/ and input/ is accepted. Before Step 2:
+1. Run a case-insensitive search for condo|HO-?6|\b78\b across the whole repo root, excluding notebooks. Include classic_spl_weekly_scoring_pipeline.json, dodo.py, setup.py, and .github.
+2. Answer items 5-9 from my earlier message (list coupling in 1_policy.py, Condo mapping behavior in driver_loss_balance.py, default fallbacks on make_constants lookups, where 78 is first filtered from scoring input, versioned vs stale output paths).
+3. In 3_deliver.py: show the write call. What is the partitionBy, the write mode, and is partitionOverwriteMode dynamic? Is the delivery path versioned by release or date?
+Still no edits.
 
-@activity('classic_spl_weekly_gate').error.message
 
-
-•	Body (dynamic content): 
-
-@concat('Scoring run failed. Pipeline run ID: ', pipeline().RunId, '. Check Monitor.')
+git grep -nIiE 'condo|HO-?6|\b78\b' -- . ':!*.ipynb'
