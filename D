@@ -1,22 +1,23 @@
-spark.read.format("delta").load(p.public_results).groupBy("line").count().show()
+P_BEFORE = p.public_results  # Files/data/public/classic_spl_ltv/v10.0/results
+
+spark.sql(f"DESCRIBE HISTORY delta.`{P_BEFORE}`") \
+     .select("version", "timestamp", "operation", "operationParameters").show(20, False)
+
+cur = spark.read.format("delta").load(P_BEFORE)
+cur.groupBy("line").count().orderBy("line").show()                              # Delta view
+spark.read.parquet(P_BEFORE).groupBy("line").count().orderBy("line").show()     # raw files
+
+# freeze a baseline copy; errorifexists so you never overwrite it
+BASE = "Files/scratch/b3044909/v10.0_results_baseline"
+cur.write.format("delta").mode("errorifexists").save(BASE)
 
 
-Proceed with Step 2. Show the diff before finishing. No reformatting, no other edits.
-1. 1_policy.py: remove "78" from lines (17-18), remove the line="78" tuple from spl_lr_fits (37-77), remove "78" from the list at 124-140. Keep "71" where it is; do not harmonize the lists.
-2. driver_loss_balance.py: first paste lines 24-42 verbatim. Then remove "78" from lines and the "Condo" mapping. Tell me whether filter or map runs first, and whether any Condo row could survive as a NaN drv_line.
-3. make_constants.py: remove both "78" tuples.
-4. Do not touch notebooks, comments, docstrings, run_paths.py, or drv_line_pt schema code.
-5. Report the default mode in fh.save_parquet_delta_table and whether spark.sql.sources.partitionOverwriteMode is set anywhere (helper, session config, Fabric environment).
 
+DROP = ["run_ts", "release_day"]  # any run-metadata columns; adjust
+b = spark.read.format("delta").load(BASE).filter("line != '78'").drop(*DROP)
+a = spark.read.format("delta").load(P_AFTER).drop(*DROP)
 
-p = PUBLIC_RESULTS_PATH
-spark.sql(f"DESCRIBE HISTORY delta.`{p}`") \
-     .select("version", "timestamp", "operation").show(5, False)
-
-before = spark.read.format("delta").option("versionAsOf", V_BEFORE).load(p).toPandas()
-after  = spark.read.format("delta").load(p).toPandas()
-# then run the same 3 checks from before
-
-# stale-file exposure: what a plain-parquet reader sees
-spark.read.parquet(p).groupBy("line").count().show()
+assert a.filter("line = '78'").count() == 0
+print(b.count(), a.count())
+print(b.exceptAll(a).count(), a.exceptAll(b).count())  # both 0 = other lines unchanged
 
