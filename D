@@ -7,3 +7,6 @@ git checkout -b feature/B-3044909 origin/<release-branch-name>
 git stash pop
 git status
 git diff --stat
+
+
+git stash show stash@{0}
