@@ -1,18 +1,34 @@
-from types import SimpleNamespace as NS
+Proceed with Step 2: remove the line 78 logic. Rules:
+- Change only what is listed below. No reformatting, no reordering, no renaming, no cleanup of unrelated code.
+- Do not change behavior for any other line.
+- Do not delete or write any data, S3/OneLake files, or partitions. Do not run any job.
+- Do not bump version numbers. Do not commit or push.
 
-paths = {a: getattr(p, a) for a in dir(p)
-         if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk"])}
+Edits:
+1. jobs/score/1_policy.py
+   a. Remove "78" from the lines list (17-18).
+   b. Remove the line="78" tuple from spl_lr_fits (37-77).
+   c. Remove "78" from the list at 124-140. Keep "71" exactly where it is; do not harmonize any line lists.
+   d. Confirm the zero-balance default rows at 172-181 build from the edited lines list, so no 78 rows get generated.
+2. jobs/balance/driver_loss_balance.py
+   a. Before editing, paste lines 24-42 verbatim.
+   b. Remove "78" from lines and remove the "Condo" entry from line_mapping.
+   c. Tell me whether the isin(lines) filter runs before or after the map, and whether any Condo row could survive as a NaN drv_line.
+3. jobs/risk/make_constants.py
+   a. Remove both "78" tuples (465-485).
 
-for a, path in paths.items():
-    if not notebookutils.fs.exists(path):
-        print(f"MISSING {a}"); continue
-    df = load(NS(name=path.split("/")[-1], path=path))
-    if df is None:
-        print(f"SKIP   {a}"); continue
-    cols = [c for c in df.columns if any(k in c.lower() for k in ["line", "lob"])]
-    if not cols:
-        print(f"NOCOL  {a}: {df.columns[:12]}"); continue
-    for c in cols:
-        n = df.filter(F.lower(F.col(c).cast("string"))
-                      .isin("78", "condo", "condominiums")).count()
-        print(f"{'HIT' if n else 'ok':6} {a} {c} {n}")
+Do not touch:
+- Notebooks (including lob_code_decode)
+- Comments and docstrings that mention condo
+- run_paths.py
+- drv_line_pt schema or partition code
+- condos_active_policy_count or any retention feature
+
+Answer these too (no edits):
+4. Is make_constants.py run in the weekly scoring pipeline or only at model build? Does it write to model_store (coc_non_home_2024, prem_float_2024)?
+5. How is model_version_short derived? For a v10.1.0 build, what would p.public_results, p.balance, and the model_store paths resolve to? If model_store would resolve to v10.1, list which artifacts would be missing.
+6. What is the default write mode in fh.save_parquet_delta_table, and is spark.sql.sources.partitionOverwriteMode set anywhere (helper, session config, Fabric environment)?
+
+When done:
+- Show the full diff.
+- Run git grep -nIiE 'condo|\b78\b' -- . ':!*.ipynb' and list every remaining hit, each tagged as an expected leftover (comment, banner width, feature name) or a miss.
