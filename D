@@ -5,3 +5,10 @@ scan("Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/retention/data/sco
 {a: getattr(p, a) for a in dir(p)
  if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk", "lr", "constant"])}
 
+
+# 1. retention/data/scored was SKIP at depth 0; go one level deeper
+scan("Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/retention/data/scored", depth=2)
+
+# 2. find the balance and risk output paths
+{a: getattr(p, a) for a in dir(p)
+ if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk", "lr", "constant"])}
