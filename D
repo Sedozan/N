@@ -10,3 +10,7 @@ git diff --stat
 
 
 git stash show stash@{0}
+
+git checkout feature/B-3044909
+git --no-pager log --oneline -5
+git --no-pager log --oneline HEAD..origin/release/NB_Classic_SPL_v10.1.0
