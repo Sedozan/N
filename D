@@ -1,33 +1,7 @@
-import pandas as pd
+# 1. retention/data/scored was SKIP at depth 0; go one level deeper
+scan("Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/retention/data/scored", depth=2)
 
-def scan_xlsx(f):
-    local = "/lakehouse/default/Files/" + f.path.split("/Files/", 1)[1]
-    for name, s in pd.read_excel(local, sheet_name=None, dtype=str).items():
-        s = s.fillna("")
-        condo = s.apply(lambda c: c.str.lower().str.contains("condo")).to_numpy().sum()
-        line_cols = [c for c in s.columns if "line" in str(c).lower()]
-        l78 = sum((s[c].str.strip() == "78").sum() for c in line_cols)
-        hdr = [c for c in s.columns if "condo" in str(c).lower() or str(c).strip() == "78"]
-        n = condo + l78 + len(hdr)
-        print(f"{'HIT' if n else 'ok':6} {f.name}[{name}] cells={condo + l78} headers={hdr}")
+# 2. find the balance and risk output paths
+{a: getattr(p, a) for a in dir(p)
+ if not a.startswith("_") and any(k in a.lower() for k in ["balance", "risk", "lr", "constant"])}
 
-def scan(root, depth=2):
-    for f in notebookutils.fs.ls(root):
-        if f.name.endswith(".xlsx"):
-            scan_xlsx(f); continue
-        df = load(f)
-        if df is None:
-            if f.isDir and depth > 0:
-                scan(f.path, depth - 1)
-            else:
-                print(f"SKIP   {f.path}")
-            continue
-        cols = [c for c in LINE_COLS if c in df.columns]
-        if not cols:
-            print(f"NOCOL  {f.path}: {df.columns[:10]}"); continue
-        for c in cols:
-            n = df.filter(F.lower(F.col(c).cast("string")).isin("78", "condo")).count()
-            print(f"{'HIT' if n else 'ok':6} {f.path.split('/Files/')[1]} {c} {n}")
-
-scan("Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0")
-# then: scan(p.<balance_attr>), scan(p.<risk_attr>)
