@@ -1,8 +1,22 @@
-Coverage for jobs/ and input/ is accepted. Before Step 2:
-1. Run a case-insensitive search for condo|HO-?6|\b78\b across the whole repo root, excluding notebooks. Include classic_spl_weekly_scoring_pipeline.json, dodo.py, setup.py, and .github.
-2. Answer items 5-9 from my earlier message (list coupling in 1_policy.py, Condo mapping behavior in driver_loss_balance.py, default fallbacks on make_constants lookups, where 78 is first filtered from scoring input, versioned vs stale output paths).
-3. In 3_deliver.py: show the write call. What is the partitionBy, the write mode, and is partitionOverwriteMode dynamic? Is the delivery path versioned by release or date?
-Still no edits.
+spark.read.format("delta").load(p.public_results).groupBy("line").count().show()
 
 
-git grep -nIiE 'condo|HO-?6|\b78\b' -- . ':!*.ipynb'
+Proceed with Step 2. Show the diff before finishing. No reformatting, no other edits.
+1. 1_policy.py: remove "78" from lines (17-18), remove the line="78" tuple from spl_lr_fits (37-77), remove "78" from the list at 124-140. Keep "71" where it is; do not harmonize the lists.
+2. driver_loss_balance.py: first paste lines 24-42 verbatim. Then remove "78" from lines and the "Condo" mapping. Tell me whether filter or map runs first, and whether any Condo row could survive as a NaN drv_line.
+3. make_constants.py: remove both "78" tuples.
+4. Do not touch notebooks, comments, docstrings, run_paths.py, or drv_line_pt schema code.
+5. Report the default mode in fh.save_parquet_delta_table and whether spark.sql.sources.partitionOverwriteMode is set anywhere (helper, session config, Fabric environment).
+
+
+p = PUBLIC_RESULTS_PATH
+spark.sql(f"DESCRIBE HISTORY delta.`{p}`") \
+     .select("version", "timestamp", "operation").show(5, False)
+
+before = spark.read.format("delta").option("versionAsOf", V_BEFORE).load(p).toPandas()
+after  = spark.read.format("delta").load(p).toPandas()
+# then run the same 3 checks from before
+
+# stale-file exposure: what a plain-parquet reader sees
+spark.read.parquet(p).groupBy("line").count().show()
+
