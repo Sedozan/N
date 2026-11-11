@@ -1,13 +1,33 @@
-df.groupBy("end_date", "release_date").count().show()
-
 from pyspark.sql import functions as F
 
 root = "Files/data/classic_spl_ltv/score/NB_Classic_SPL_v10.0.0/score"
+LINE_COLS = ["line", "drv_line", "drv_line_pt", "line_cd", "lob_cd"]
+
+def load(f):
+    if f.name.endswith(".csv"):
+        return spark.read.option("header", True).csv(f.path)
+    for fmt in ("delta", "parquet"):
+        try:
+            df = spark.read.format(fmt).load(f.path)
+            df.schema  # force schema inference here
+            return df
+        except Exception:
+            pass
+    return None
+
 for f in notebookutils.fs.ls(root):
-    try:
-        df = spark.read.format("delta").load(f.path)
-    except Exception:
-        df = spark.read.parquet(f.path)
-    for c in [c for c in ["line", "drv_line", "drv_line_pt"] if c in df.columns]:
-        n = df.filter(F.lower(F.col(c).cast("string")).isin("78", "condo")).count()
-        print(f.name, c, n)
+    df = load(f)
+    if df is None:
+        print(f"SKIP   {f.name} (dir={f.isDir}, size={f.size})")
+        continue
+    cols = [c for c in LINE_COLS if c in df.columns]
+    if not cols:
+        print(f"NOCOL  {f.name}: {df.columns[:10]}")
+        continue
+    for c in cols:
+        try:
+            n = df.filter(F.lower(F.col(c).cast("string")).isin("78", "condo")).count()
+            print(f"{'HIT' if n else 'ok':6} {f.name} {c} {n}")
+        except Exception as e:
+            print(f"ERR    {f.name} {c}: {type(e).__name__}")
+
