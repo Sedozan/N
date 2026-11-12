@@ -1,3 +1,11 @@
+
+It's classic_spl_weekly_scheduled, in STG for now. It runs the gate first and calls classic_spl_weekly_scoring_pipeline only when the week is ready. The scoring pipeline itself only has the end_date change from the earlier PR, so it still works the same when we run it by hand. The schedule would go on classic_spl_weekly_scheduled.
+
+
+
+
+
+
 B-3044909 is done, PR is up to the v10.1.0 release branch.
 Removed the remaining line 78 code from 1_policy, driver_loss_balance, and make_constants.
 Validation passed:
