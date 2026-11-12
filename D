@@ -1,48 +1,9 @@
+https://learn.microsoft.com/en-us/fabric/data-factory/invoke-pipeline-activity
 
-It's classic_spl_weekly_scheduled, in STG for now. It runs the gate first and calls classic_spl_weekly_scoring_pipeline only when the week is ready. The scoring pipeline itself only has the end_date change from the earlier PR, so it still works the same when we run it by hand. The schedule would go on classic_spl_weekly_scheduled.
+https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/understand-the-deployment-process
 
+https://community.fabric.microsoft.com/t5/Data-Pipeline/Invoke-Pipeline-Preview-Managing-Pipeline-IDs-Across-Workspaces/td-p/4273648
 
+https://community.fabric.microsoft.com/t5/Fabric-platform/Deployment-with-fabric-cicd-How-to-handle-cross-workspace/m-p/4918736
 
-
-
-
-B-3044909 is done, PR is up to the v10.1.0 release branch.
-Removed the remaining line 78 code from 1_policy, driver_loss_balance, and make_constants.
-Validation passed:
-	•	No line 78 rows in v10.0 inputs or outputs, so the code wasn't being used
-	•	Compared old vs new code: only 78 removed, nothing else changed
-	•	Loss ratio curves and finance targets match for all other lines
-I'll run a full output comparison once v10.1.0 runs.
-
-
-B-3044909: Remove line 78 (condo) from Classic SPL scoring
-
-Summary
-Removed the remaining line 78 code. Condo was already removed in v10.0.0, so this code wasn't being used.
-
-Changes
-- jobs/score/1_policy.py: removed 78 from lines, the line 78 spl_lr_tuple, and the line list in get_lr_nt6_by_line
-- jobs/balance/driver_loss_balance.py: removed 78 from lines and Condo from line_mapping
-- jobs/risk/make_constants.py: removed the two line 78 tuples
-
-Validation
-- No line 78 rows in v10.0 inputs (ltv_base, legacy_ifs) or outputs (public, internal, retention, validate)
-- Compared old vs new code: only 78 removed, no other logic changed
-- Loss ratio curves match for all other lines (700 rows before, 600 after, the 100 dropped are line 78)
-- Finance targets match for all other lines. The Condo row now maps to NaN and drops out in the merge, so balance output doesn't change
-
-Not changed
-- Notebooks and lob_code_decode (needed to label condo in v9.x comparisons)
-- condos_active_policy_count in retention (household feature, not line 78 scoring)
-- Line 78 rows already in model_store (coc_non_home_2024, prem_float_2024)
-
-
-
-
-Quick update on the weekly scheduling. I tested the scheduled pipeline in STG yesterday. The first run passed the gate and scored 11/07, and the second saw the week was already scored and skipped, which is what we want.
-I followed James's tip and shared the pipeline connection with you, James, and the team, so anyone can run it without the connection error. That part doesn't cover promotion yet, though. I'll check with James and Nick tomorrow on whether the invoke still works after we promote to DATA. If it doesn't, I'll move the gate into the scoring pipeline like you suggested.
-
-
-
-
-Validated in DATA. The validation file is excel_validate_20261107 and the daily counts now run from Oct 18 through Nov 7, stopping right at end_date with nothing after it. public_results has end_date 2026-11-07 on all [count] rows.
+https://www.sqlservercentral.com/articles/parameterize-connections-in-microsoft-fabric-data-factory-using-variable-libraries
