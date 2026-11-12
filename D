@@ -1,9 +1,3 @@
-https://learn.microsoft.com/en-us/fabric/data-factory/invoke-pipeline-activity
-
-https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/understand-the-deployment-process
-
-https://community.fabric.microsoft.com/t5/Data-Pipeline/Invoke-Pipeline-Preview-Managing-Pipeline-IDs-Across-Workspaces/td-p/4273648
-
-https://community.fabric.microsoft.com/t5/Fabric-platform/Deployment-with-fabric-cicd-How-to-handle-cross-workspace/m-p/4918736
-
-https://www.sqlservercentral.com/articles/parameterize-connections-in-microsoft-fabric-data-factory-using-variable-libraries
+New and add:
+	•	end_date, String: @json(activity('classic_spl_weekly_gate').output.result.exitValue).end_date
+	•	ltv_lines, Array: @createArray('16','32','72','88','90')
