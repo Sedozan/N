@@ -1,9 +1,13 @@
-Adds classic_spl_weekly_scheduled, which the weekly schedule will run.
+Week of 11/9 to 11/13
 
-	•	Gate notebook (classic_spl_weekly_gate): sets end_date to last Saturday (Central), checks the eltv data is refreshed and that the week isn't already scored, and returns run and end_date.
-	•	If run is true, it invokes classic_spl_weekly_scoring_pipeline with that end_date. It sends an email if the gate or the scoring fails.
-	•	Variable library: added scoring_workspace_id and scoring_pipeline_id with STG and DATA values, so the invoke points to the DATA pipeline after promotion.
+Completed
 
-Tested: STG scored 11/07 and then skipped on the rerun. In DATA, the invoke used the DATA workspace and pipeline IDs, and all steps succeeded.
+	•	B-3044909: removed the remaining line 78 (condo) code from 1_policy, driver_loss_balance, and make_constants. Validated: no line 78 rows in v10.0 inputs or outputs, old vs new diff only touched 78, loss ratio curves and finance targets match on all other lines. PR up to release/NB_Classic_SPL_v10.1.0. Full output comparison runs on the first v10.1.0 run.
 
-Notes: I deployed to DATA before opening this PR so I could test the promotion.
+Ongoing
+
+	•	B-3074669: auto end_date and weekly scheduling in Fabric DATA. Confirmed scheduled runs use the pipeline's default params, not trigger values, so I'm deriving end_date inside the pipeline. Checked Fabric's ltv_base copy is current through Oct 24. Holding the live schedule until I add the data-freshness gate, then the JSON edit and PR.
+
+Not started
+
+	•	None
