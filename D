@@ -1,3 +1,4 @@
-New and add:
-	•	end_date, String: @json(activity('classic_spl_weekly_gate').output.result.exitValue).end_date
-	•	ltv_lines, Array: @createArray('16','32','72','88','90')
+Hi Yinan, quick update on the weekly scheduling.
+I added two variables to classic_spl_variable_library, scoring_workspace_id and scoring_pipeline_id, with STG and DATA values. The invoke pipeline activity in classic_spl_weekly_scheduled now reads the workspace and pipeline from those variables using dynamic content instead of the fixed STG IDs, so it should switch to DATA on promotion the same way the Scality connections do. I tested it in STG and it called the STG scoring pipeline correctly.
+In DATA I created the new connection and promoted the library, the gate notebook and the scheduled pipeline. I ran the scoring job in DATA, and now I'm checking which workspace and pipeline IDs it actually used, to make sure it called the DATA scoring pipeline and not STG. Once that checks out, I'll open the PR with the updated JSON.
+I haven't set up the schedule yet. I'll do that after the validation and the PR.
