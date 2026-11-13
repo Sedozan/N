@@ -1,4 +1,9 @@
-Hi Yinan, quick update on the weekly scheduling.
-I added two variables to classic_spl_variable_library, scoring_workspace_id and scoring_pipeline_id, with STG and DATA values. The invoke pipeline activity in classic_spl_weekly_scheduled now reads the workspace and pipeline from those variables using dynamic content instead of the fixed STG IDs, so it should switch to DATA on promotion the same way the Scality connections do. I tested it in STG and it called the STG scoring pipeline correctly.
-In DATA I created the new connection and promoted the library, the gate notebook and the scheduled pipeline. I ran the scoring job in DATA, and now I'm checking which workspace and pipeline IDs it actually used, to make sure it called the DATA scoring pipeline and not STG. Once that checks out, I'll open the PR with the updated JSON.
-I haven't set up the schedule yet. I'll do that after the validation and the PR.
+Adds classic_spl_weekly_scheduled, which the weekly schedule will run.
+
+	•	Gate notebook (classic_spl_weekly_gate): sets end_date to last Saturday (Central), checks the eltv data is refreshed and that the week isn't already scored, and returns run and end_date.
+	•	If run is true, it invokes classic_spl_weekly_scoring_pipeline with that end_date. It sends an email if the gate or the scoring fails.
+	•	Variable library: added scoring_workspace_id and scoring_pipeline_id with STG and DATA values, so the invoke points to the DATA pipeline after promotion.
+
+Tested: STG scored 11/07 and then skipped on the rerun. In DATA, the invoke used the DATA workspace and pipeline IDs, and all steps succeeded.
+
+Notes: I deployed to DATA before opening this PR so I could test the promotion.
