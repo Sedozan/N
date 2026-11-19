@@ -115,6 +115,19 @@ def _list(name, default, label):
     return [x.strip() for x in _param(name, default, label).split(",") if x.strip()]
 
 
+def _name_map(name, default, label):
+    """Read an id=Name map from a widget. Pairs are separated by semicolons, not commas,
+    because a provider name usually contains a comma (Surname, Firstname)."""
+    out = {}
+    for pair in _param(name, default, label).split(";"):
+        if "=" not in pair:
+            continue
+        k, v = pair.split("=", 1)
+        if k.strip() and v.strip():
+            out[k.strip()] = v.strip()
+    return out
+
+
 ROOT = "sedo.senou@azahcccs.gov"
 # The source table is a setting rather than a constant so the same notebook can be pointed at a
 # different catalog or at a test table without a code edit.
@@ -125,10 +138,18 @@ SERVICE_TABLE = _param("service_table", "main.prod_input.all_paid_services", "So
 # name was not supplied with the request is handled explicitly: the workbook says there was
 # nothing to check rather than reporting a match against an empty string.
 TARGETS = _list("targets", "158633", "Servicing provider IDs (comma separated)")
-TARGET_NAMES_GIVEN = {
-    "123531": "Knudson, Rachel Elizabeth",
-    "120020": "Etukudoh Akaninyene J",
-}
+TARGET_NAMES_GIVEN = _name_map(
+    "target_names", "", "Provider names from the request, as id=Name; id=Name")
+
+# A name left over from an earlier request must never travel into this workbook: it would put one
+# investigation's subjects into another investigation's file. So a name supplied for an ID that is
+# not under review stops the run rather than being ignored quietly.
+_stray_names = sorted(set(TARGET_NAMES_GIVEN) - set(TARGETS))
+if _stray_names:
+    raise ValueError(
+        "target_names carries provider IDs that are not under review: "
+        + ", ".join(_stray_names)
+        + ". Clear them before running. Names belong to the request they came from.")
 
 # The lens. Codes and primary diagnoses that are highlighted everywhere but never used to
 # restrict the data. The diagnosis list may be empty, and when it is, every diagnosis sheet says
