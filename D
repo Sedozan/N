@@ -1,32 +1,9 @@
-Outcome
-I haven't worked with Nick as closely as with others on the team, but every time I reached out he was helpful and thorough. When Yinan asked him to help me get started on the loss ratio update, he sent me everything I needed in one message: the past analysis, how to get CDF access, and a heads up about filtering out cat losses. When renters scoring failed, he found the exact line causing it and gave me two ways to fix it. He also helped me figure out the sys-id password issue in Domino. On top of that, he's always calm and professional, which makes him easy to approach.
+I joined the LTV team this year, and almost everything was new to me: the insurance domain, the pipelines, Domino, and later Fabric and Power BI. I learned so much this year.
 
-Growth
-Honestly, I haven't worked with Nick long or closely enough to point to something specific here.
+On the work side, I updated Classic SPL and Renters with the new Finance expense files and added validation to the pipeline so the numbers get checked on every run. I refit the loss ratios with cat losses excluded. I did my first releases, Classic SPL v9.4 and Renters v1.5, and presented the changes at the release parties. After that I worked on the Renters dedup and the condo removal for Classic v10. I also worked on retention model updates, and I helped move our work to Fabric by running the Classic scoring end to end and setting up the weekly schedule.
 
-Future
-Nick knows a lot about the history of our data and pipelines. It would be great to see more of that written down and shared with the team, so newer people like me can find it without having to ask him every time.
+I also improved our model monitoring. I redesigned the monitoring dashboards so they're consistent and easier to read, and replaced the old drift section with a refit recommendation that updates on its own based on the data. Along the way I found and fixed a bug that made the drift checks flag columns that weren't real model features, and a false alarm on the Classic dashboard caused by a missing table reference. Now the dashboards give us a more reliable picture of when a model needs attention.
 
+I worked closely with the team to get things done and tried to share what I learned along the way. I added lessons learned to the release steps doc and documented releases on Loop. I also learned not to trust a result just because a job ran without errors. A few times things looked fine but weren't, so now I make a point of checking my results. I send Yinan weekly updates so she knows where things stand. I also took her feedback on communication and on committing my work more often; I've improved on both and will keep working on it.
 
-
-Outcome
-I haven't worked with Nick as much as others on the team, but he's always been helpful whenever I've reached out. He gets back to me with clear answers, and when something breaks he usually knows exactly where to look. He helped me a lot when I started on the loss ratio work and again when we had scoring issues. He's also very calm and professional, which makes him easy to work with.
-
-Growth
-I haven't worked with Nick long or closely enough to give him meaningful feedback here.
-
-Future
-Nick knows a lot about how our data and pipelines came together. It would be great to see more of that knowledge shared with the team, especially for newer folks like me.
-
-
-
-
-
-Outcome
-James has been central to my ramp-up on this team. He's generous with his time; he stays late when needed and jumps on calls quickly. He's also patient with all the questions that come with being new. His reviews make the work better, and he catches issues that aren't obvious. For example, Classic job 1582 ran without any failure, but James noticed it was reading the 9.3 expenses. He also flagged that the loss ratio assumptions had changed in the paths config. Without him, I would have moved on with bad assumptions. His guidance on LTV overall, balancing, promote to prod and the expense work helped me a lot in delivering my work.
-
-Growth
-Nothing specific comes to mind at this point.
-
-Future
-As more of our work moves to Fabric, I think James would be great at leading how we set things up there, like how we handle pipeline connections so they don't depend on one person's account.
+I encountered a number of challenges this year, but I was able to overcome them, and I've grown my skill set and knowledge a lot. I'm looking forward to taking on more next year.
