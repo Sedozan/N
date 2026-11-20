@@ -1,3 +1,32 @@
-display(spark.sql("""
-  SELECT DISTINCT regexp_extract(archive_path, '^(.*)/archive/', 1) AS data_dir
-  FROM main.policy_kb.kb_source_versions"""))
+Outcome
+I haven't worked with Nick as closely as with others on the team, but every time I reached out he was helpful and thorough. When Yinan asked him to help me get started on the loss ratio update, he sent me everything I needed in one message: the past analysis, how to get CDF access, and a heads up about filtering out cat losses. When renters scoring failed, he found the exact line causing it and gave me two ways to fix it. He also helped me figure out the sys-id password issue in Domino. On top of that, he's always calm and professional, which makes him easy to approach.
+
+Growth
+Honestly, I haven't worked with Nick long or closely enough to point to something specific here.
+
+Future
+Nick knows a lot about the history of our data and pipelines. It would be great to see more of that written down and shared with the team, so newer people like me can find it without having to ask him every time.
+
+
+
+Outcome
+I haven't worked with Nick as much as others on the team, but he's always been helpful whenever I've reached out. He gets back to me with clear answers, and when something breaks he usually knows exactly where to look. He helped me a lot when I started on the loss ratio work and again when we had scoring issues. He's also very calm and professional, which makes him easy to work with.
+
+Growth
+I haven't worked with Nick long or closely enough to give him meaningful feedback here.
+
+Future
+Nick knows a lot about how our data and pipelines came together. It would be great to see more of that knowledge shared with the team, especially for newer folks like me.
+
+
+
+
+
+Outcome
+James has been a huge help since I joined the team. Whenever I had a question he made time for it, even late in the day, and he never made me feel like I was bothering him. I also appreciated him checking in when Yinan was out. He's very thorough too. He asked for my validation notebook before approving my PR, and he questioned the feature count in the model, which was a good catch. Honestly, I don't think my first release would have gone as smoothly without him.
+
+Growth
+A lot of what I needed for the release (the balancing steps, which config file to use, promoting from STG to DATA in Fabric) I learned by pinging James or jumping on a call with him. The release steps page he shared helped a lot. Having the full process written down would help, so the team doesn't always have to go through him.
+
+Future
+As more of our work moves to Fabric, I think James would be great at leading how we set things up there, like how we promote from STG to DATA and how we handle pipeline connections so they don't depend on one person's account. He's already the go-to person for new folks like me, so owning the onboarding and release docs would make sense.
