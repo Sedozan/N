@@ -1,8 +1,3 @@
-Outcome
-James has been central to my ramp-up on this team. He is generous with his time: he stays late when needed, jumps on calls quickly, and checked in on me while Yinan was out. He's also patient with the volume of questions that come with being new. His reviews make the work better. He questioned our 266-feature count given that we use ordinal encoding, asked for validation notebooks before approving PRs, and confirmed the _copy branch was validated with both the dedup and post-termination changes. He also catches issues early, like job 1582 reading the 9.3 expenses and the loss ratio assumptions changing in the paths config. His guidance on balancing, promote to prod and Fabric connections is a big reason my first solo release went smoothly.
-
-Growth
-Building on the release steps page he shared, much of the process knowledge (balancing order, which config is current, how we promote from STG to DATA) still lives with James and gets passed on through calls. I needed to confirm most steps with him as I went. Turning this into a complete runbook would reduce how often the team depends on him and help new members ramp faster.
-
-Future
-As more of our work moves into Fabric, James is well placed to lead on standardizing it: how we promote from STG to DATA, and how pipeline connections are set up (shared or service connections instead of personal ones, so no pipeline depends on one person's access). Owning the release runbook and onboarding would extend the impact he already has on people like me.
+display(spark.sql("""
+  SELECT DISTINCT regexp_extract(archive_path, '^(.*)/archive/', 1) AS data_dir
+  FROM main.policy_kb.kb_source_versions"""))
