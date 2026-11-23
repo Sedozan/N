@@ -1,2 +1,7 @@
-SELECT line_of_business, lob_contract_descr, CLM_TYP, count(*)
-FROM main.prod_input.all_data_C_A GROUP BY 1, 2, 3 ORDER BY 4 DESC
+# pair examples for step 3
+display(spark.sql("""SELECT code, dos, member, bprov, sprov, paid, evidence, quote, locator
+  FROM pie_findings WHERE kind = 'pair_prohibited' AND tier = 'violation' ORDER BY paid DESC LIMIT 20"""))
+# how much of all 10,547 telehealth lines is POS 10 or 02
+display(spark.sql("""SELECT l.pos, count(*) AS lines, round(sum(l.paid), 2) AS paid
+  FROM (SELECT DISTINCT line_id FROM pie_findings WHERE kind = 'telehealth_rule') f
+  JOIN pie_lines l USING (line_id) GROUP BY l.pos ORDER BY lines DESC"""))
