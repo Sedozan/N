@@ -5,3 +5,9 @@ display(spark.sql("""SELECT code, dos, member, bprov, sprov, paid, evidence, quo
 display(spark.sql("""SELECT l.pos, count(*) AS lines, round(sum(l.paid), 2) AS paid
   FROM (SELECT DISTINCT line_id FROM pie_findings WHERE kind = 'telehealth_rule') f
   JOIN pie_lines l USING (line_id) GROUP BY l.pos ORDER BY lines DESC"""))
+
+
+
+
+SELECT * FROM main.policy_kb.kb_findings
+WHERE run_id = 'detect-20261123T185412Z-9031'
