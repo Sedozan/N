@@ -1,13 +1,10 @@
-# pair examples for step 3
-display(spark.sql("""SELECT code, dos, member, bprov, sprov, paid, evidence, quote, locator
-  FROM pie_findings WHERE kind = 'pair_prohibited' AND tier = 'violation' ORDER BY paid DESC LIMIT 20"""))
-# how much of all 10,547 telehealth lines is POS 10 or 02
-display(spark.sql("""SELECT l.pos, count(*) AS lines, round(sum(l.paid), 2) AS paid
-  FROM (SELECT DISTINCT line_id FROM pie_findings WHERE kind = 'telehealth_rule') f
-  JOIN pie_lines l USING (line_id) GROUP BY l.pos ORDER BY lines DESC"""))
+Outcome
+Yinan has been my manager since I joined, and she's a big reason I got up to speed as fast as I did. She knows the code and the pipelines inside out, and when I'm stuck she knows where to look. When my environment wasn't working, she ran the validation from her own notebook so I wasn't blocked. She also gave me real ownership early on, like the expense file updates, the loss ratio work and my first release, which helped me learn a lot in a short time. Her standards are high, and her feedback pushed me to do things the right way instead of the quick way. She also makes sure I'm connected with the right people on the team when I need help.
 
+Growth
+Nothing specific comes to mind at this point.
 
+Future
+With the move to Fabric, I think Yinan is in a great position to set the standards for how the team builds and runs pipelines there. Getting those standards written down would help the whole team, especially newer folks like me.
 
-
-SELECT * FROM main.policy_kb.kb_findings
-WHERE run_id = 'detect-20261123T185412Z-9031'
+Yinan has already taken the lead on setting standards for how we build pipelines in Fabric, and she's done a great job with it. I'd love to see her keep building on that as more of our work moves over. Having those standards in one place as they grow would help the whole team, especially newer folks like me.
