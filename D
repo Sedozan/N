@@ -1,10 +1,61 @@
-Outcome
-Yinan has been my manager since I joined, and she's a big reason I got up to speed as fast as I did. She knows the code and the pipelines inside out, and when I'm stuck she knows where to look. When my environment wasn't working, she ran the validation from her own notebook so I wasn't blocked. She also gave me real ownership early on, like the expense file updates, the loss ratio work and my first release, which helped me learn a lot in a short time. Her standards are high, and her feedback pushed me to do things the right way instead of the quick way. She also makes sure I'm connected with the right people on the team when I need help.
+The doc tried to cover too much. These are the answers to your three questions; if they work, I'll replace the doc with this short version.
 
-Growth
-Nothing specific comes to mind at this point.
+## 1. Where the 10 templates are in `detect.py`, and what each does
 
-Future
-With the move to Fabric, I think Yinan is in a great position to set the standards for how the team builds and runs pipelines there. Getting those standards written down would help the whole team, especially newer folks like me.
+Seven are one-line checks: short conditions in the `SINGLE_LINE` dictionary. The loop at lines 396 to 401 wraps each one in the same SELECT. The other three are full blocks inside `sql_text()`.
 
-Yinan has already taken the lead on setting standards for how we build pipelines in Fabric, and she's done a great job with it. I'd love to see her keep building on that as more of our work moves over. Having those standards in one place as they grow would help the whole team, especially newer folks like me.
+| # | Template | Lines | Flags a claim line when |
+|---|---|---|---|
+| 1 | `age_limit` | 308 | The member's age on the service date is outside the rule's range |
+| 2 | `modifier_rule` | 311 | A required modifier is missing, a forbidden one is present, or one is outside a complete list |
+| 3 | `pos_rule` | 317 | The place of service is forbidden, or outside a complete list |
+| 4 | `provider_type_rule` | 320 | The provider type is forbidden, or outside a complete list; a group biller (01) is judged by its rendering provider |
+| 5 | `telehealth_rule` | 331 | A telehealth modifier or site isn't in the code set for that code; POS 02 or 10 alone is only a coding lead |
+| 6 | `not_covered` | 339 | The code is billed while the rule says it isn't covered |
+| 7 | `units_limit` (per line) | 340 | Units on the line are above the limit |
+| 8 | Daily limits | 404 to 423 | The member's units (or number of services) of a code on one day are above the limit |
+| 9 | Pairs | 425 to 436 | The code and a forbidden partner code are billed for the member on the same day |
+| 10 | Included in | 438 to 447 | The code is billed the same day as the parent service it's bundled into, by the same provider |
+
+Line 448 joins all ten with `UNION ALL`. Four supporting pieces aren't templates:
+- `lines_sql` (229): prepares the claim lines.
+- `COND_SQL` (277): the rule conditions every template shares.
+- The views `applies` (374) and `day_applies` (382): which lines each rule is allowed to judge.
+
+## 2. The spirit of the SQL
+
+Think of a mail merge. The letter is written once and each rule fills in the blanks. The template says "flag a line when units are above **[limit]** for code **[code]** between **[start]** and **[end]**", and each rule row supplies the values.
+
+Every template follows the same three steps:
+
+1. **Pair each rule with the claim lines it may judge:** same code, a service date inside the rule's dates, and the rule's conditions true on the line.
+2. **Apply the test for its kind** (the "flags when" column above).
+3. **Write the same finding columns every time:** the line's facts, the evidence, the rule, and the policy words with their location.
+
+It's also deliberately cautious:
+- If the claim can't show something the rule depends on, the rule doesn't run.
+- If a person has to check first, the finding is a Lead.
+- Nothing decides a payment.
+
+## 3. The four fields in `kb_detect_runs`
+
+They run in this order, and each one builds what the next one reads.
+
+| Field | What it is |
+|---|---|
+| `lines_sql` | Turns `all_data_C_A` into **one clean row per paid claim line** (view `pie_lines`). An original and its adjustments are netted; modifiers, place of service and provider types are cleaned; age, days covered and the PA number are added. It keeps only FFS professional lines from the chosen dates. |
+| `applies_sql` | **Pairs each rule with every line it may judge** (view `pie_applies`). The pair and included-in templates read this. |
+| `day_applies_sql` | The same pairing, **but one row per day** for the daily limits (view `pie_day_applies`). A line covering 5 days becomes 5 rows, with its units spread evenly across them. |
+| `findings_sql` | **The ten templates themselves**, joined with `UNION ALL`. This is where every check lives; the other three are setup. |
+
+**Does Erin need to know this before reading?** Yes, but only three things:
+
+1. **Read `findings_sql` (or the ten places in `detect.py`) for the logic.** The other three fields are preparation.
+2. **The table prefixes:**
+   - `r.` is the rule's values;
+   - `l.` is the claim line;
+   - `p.` is the partner line (pairs, included-in);
+   - `a.` is a rule already paired with a line.
+3. **The logged SQL won't run on its own if pasted into a SQL editor.** It reads views that exist only during the run. The rules view (`pie_rules`) isn't built by SQL at all: Python builds it from `kb_records_current` for that run's build. So the log shows the logic, but replaying a run means rerunning d02 on that build.
+
+If she'd rather read code than the log, `detect.py` is easier: each template sits in one place with a comment above it. The logged `findings_sql` repeats the shared column list in every block, which makes it long.
